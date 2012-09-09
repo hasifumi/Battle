@@ -8,7 +8,8 @@ class BattleEngine
   update:->
     switch @state
       when "waitCommand"
-        console.log "wait all command"
+        #console.log "wait all command"
+        return
       when "doCommand"
         console.log "do all command"
         @doCommand()
@@ -32,7 +33,7 @@ class BattleEngine
     else
       @target++
   addCommand:(command)->
-    @commands.push {command:command, turn:@turn, target:@target}
+    @commands.push({command:command, turn:@turn, target:@target})
     @nextTurn()
   clearCommand:->
     @commands = []

@@ -10,8 +10,10 @@ class BattleScene extends Scene
     lblAttack.color = "orange"
     lblAttack.x = 50
     lblAttack.y = 50
-    lblAttack.addEventListener 'touchend', ->
+    lblAttack.addEventListener 'touchend', =>
       console.log "lblAttack touched"
       @bEngine.addCommand("attack")
       @bEngine.nextTurn()
-    @addEventListener 'enterframe', @bEngine.update()
+    @addEventListener 'enterframe', ->
+      @bEngine.update()
+    @addChild lblAttack

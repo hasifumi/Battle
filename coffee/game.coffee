@@ -12,9 +12,9 @@ class BattleTest extends Game
       @scenes = {}
       @scenes.battle = new BattleScene()
       @player = new Charactor({name:"player1", maxHp:100})
-      console.log "#{player.name} create"
+      console.log "#{@player.name} create"
       @enemy = new Charactor({name:"enemy1", maxHp:50})
-      console.log "#{enemy.name} create"
+      console.log "#{@enemy.name} create"
 
       @replaceScene @scenes.battle
       return
