@@ -1,7 +1,8 @@
 (function() {
   var BattleEngine, BattleScene, BattleTest, Charactor,
     __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   enchant();
 
@@ -19,8 +20,6 @@
       BattleTest.__super__.constructor.call(this, this.config.WIDTH, this.config.HEIGHT);
       this.fps = this.config.FPS;
       this.onload = function() {
-        this.scenes = {};
-        this.scenes.battle = new BattleScene();
         this.player = new Charactor({
           name: "player1",
           maxHp: 100
@@ -31,6 +30,8 @@
           maxHp: 50
         });
         console.log("" + this.enemy.name + " create");
+        this.scenes = {};
+        this.scenes.battle = new BattleScene();
         this.replaceScene(this.scenes.battle);
       };
       this.start();
@@ -108,11 +109,20 @@
   BattleEngine = (function() {
 
     function BattleEngine() {
-      this.state = "waitCommand";
+      this.doCommand = __bind(this.doCommand, this);
+      this.commandAttack = __bind(this.commandAttack, this);
+      this.clearCommand = __bind(this.clearCommand, this);
+      this.addCommand = __bind(this.addCommand, this);
+      this.nextTarget = __bind(this.nextTarget, this);
+      this.nextTurn = __bind(this.nextTurn, this);
+      this.changeState = __bind(this.changeState, this);
+      this.addMember = __bind(this.addMember, this);
+      this.update = __bind(this.update, this);      this.state = "waitCommand";
       this.members = [];
       this.commands = [];
       this.turn = 0;
       this.target = 1;
+      this.game = enchant.Game.instance;
     }
 
     BattleEngine.prototype.update = function() {
@@ -120,7 +130,6 @@
         case "waitCommand":
           break;
         case "doCommand":
-          console.log("do all command");
           return this.doCommand();
         default:
           return console.log("else");
@@ -136,7 +145,7 @@
     };
 
     BattleEngine.prototype.nextTurn = function() {
-      if (this.turn >= this.members.length) {
+      if (this.turn >= this.members.length - 1) {
         this.turn = 0;
         this.nextTarget();
         return this.changeState("doCommand");
@@ -147,7 +156,7 @@
     };
 
     BattleEngine.prototype.nextTarget = function() {
-      if (this.target >= this.members.length) {
+      if (this.target >= this.members.length - 1) {
         return this.target = 0;
       } else {
         return this.target++;
@@ -160,7 +169,7 @@
         turn: this.turn,
         target: this.target
       });
-      return this.nextTurn();
+      return console.log("addCommand command:" + command + ", turn:" + this.turn + ", target:" + this.target);
     };
 
     BattleEngine.prototype.clearCommand = function() {
@@ -168,15 +177,18 @@
     };
 
     BattleEngine.prototype.commandAttack = function(turn, target) {
-      var damege;
-      damege = 10;
-      console.log("" + turn + " attack " + target + "!");
-      console.log("" + target + " damaged " + damege + "!");
-      return this.member.target.damege(damege);
+      var damage, target_name, turn_name;
+      damage = 10;
+      turn_name = this.members[turn].name;
+      target_name = this.members[target].name;
+      this.members[target].damage(damage);
+      console.log("" + turn_name + " attack " + target_name + "!");
+      console.log("" + target_name + " damaged " + damage + "!");
+      return console.log("" + target_name + "'s hp:" + this.members[target].hp + ", maxHp:" + this.members[target].maxHp + "!");
     };
 
     BattleEngine.prototype.doCommand = function() {
-      var a, i, _i, _len, _ref;
+      var i, _i, _len, _ref;
       _ref = this.commands;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         i = _ref[_i];
@@ -185,10 +197,11 @@
             this.commandAttack(i.turn, i.target);
             break;
           default:
-            a = 10;
+            return;
         }
       }
       this.clearCommand();
+      this.changeState("waitCommand");
       if (this.game.player.hp <= 0) {
         console.log("Game Over!");
         this.game.stop();
