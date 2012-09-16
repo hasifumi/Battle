@@ -7,6 +7,7 @@ FILES = [
   'coffee/charactor.coffee',
   'coffee/battleScene.coffee',
   'coffee/battleEngine.coffee',
+  'coffee/util.coffee',
 ]
 HTMLFILE = 'index.html'
 
