@@ -1,7 +1,7 @@
 class BattleScene extends Scene
   constructor:->
     super()
-    @backgroundColor = "black"
+    #@backgroundColor = "black"
     @game = enchant.Game.instance
     @bEngine = new BattleEngine()
     @bEngine.addMember(@game.player)
@@ -17,3 +17,9 @@ class BattleScene extends Scene
     @addEventListener 'enterframe', ->
       @bEngine.update()
     @addChild lblAttack
+
+    uw1 = new UtilWindow(150, 50)
+    #uw1.setText("bbbbbbbbbbbbbbbbbb")
+    uw1.x = 50
+    uw1.y = 100
+    @addChild uw1

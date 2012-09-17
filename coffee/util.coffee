@@ -69,7 +69,83 @@ class UtilFunc
       else
         return false
 
-class UtilWindow
+class UtilWindow extends Sprite
+  DEFAULT:{
+    BACKGROUND_COLOR:'black'
+    LINE_COLOR:'orange'
+    BORDER:2
+    FONT_COLOR:'white'
+    FONT:'14px monospace'
+    PADDING:3
+    LINE_HEIGHT:16
+    OPACITY:0.6
+  }
+  STATE:{
+    NONE: 0
+    PUTTING: 1
+    PAGE_WAIT: 2
+    PAGE_START: 3
+    PAGE_END: 4
+    PAGE_EXIT: 5
+    MESSAGE_EXIT: 6
+    EXIT: 7
+  }
+  constructor:(w, h)->
+    super(w, h)
+    @width = w
+    @height = h
+    @sur = new Surface(w, h)
+    @ctx = @sur.context
+    @image = @sur
+    @opacity = @DEFAULT.OPACITY
+    @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
+    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
+    @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
+    console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
+    @clear()
+    @setText("12345678901234567890")
+    @drawText()
+    #@addEventListener 'enterframe', =>
+    #  @update()
+  clear:->
+    @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
+    @ctx.fillRect(0, 0, @width, @height)
+    @ctx.strokeStyle = @DEFAULT.LINE_COLOR
+    @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
+    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)
+  setText:(text)->
+    pos = 0
+    line_count = 0
+    line = ""
+    @lines = []
+    @ctx.font = @DEFAULT.FONT
+    for i in text
+      console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width)
+      if @ctx.measureText(line+i).width <= @content_width
+        line = line+i
+      else
+        @lines[line_count] = line
+        console.log "@lines[#{line_count}]:"+@lines[line_count]
+        line = i
+        line_count++
+    if line isnt ""
+      @lines[line_count] = line
+      console.log "@lines[#{line_count}]:"+@lines[line_count]
+  drawText:->
+    @clear()
+    @ctx.fillStyle = @DEFAULT.FONT_COLOR
+    @ctx.font = @DEFAULT.FONT
+    x = @DEFAULT.BORDER+@DEFAULT.PADDING
+    y = @DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT
+    for i, idx in @lines
+      @ctx.fillText(i, x, y+idx*@DEFAULT.LINE_HEIGHT)
+    #@ctx.fillText(text, @DEFAULT.BORDER+@DEFAULT.PADDING, \
+    #@DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT)
+    #console.log @ctx.measureText(text).width
+  update:->
+    return
+
+class UtilWindow_old
   DEFAULT:{
     BORDER_SIZE: 1
     CONTENT_PADDING: 2
