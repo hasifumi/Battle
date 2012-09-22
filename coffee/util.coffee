@@ -107,12 +107,15 @@ class UtilWindow extends Sprite
     @line_count = 0
     @current_line = 0
     @lines = []
+    @state = @STATE.NONE
 
     @clear()
     @setText("1234567890123456789012345678901234567890")
     @drawText()
     #@addEventListener 'enterframe', =>
     #  @update()
+    @addEventListener 'touchend', =>
+      @onClick()
   clear:->
     @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
     @ctx.fillRect(0, 0, @width, @height)
@@ -134,7 +137,7 @@ class UtilWindow extends Sprite
         @line_count++
     if line isnt ""
       @lines[@line_count] = line
-      console.log "@lines[#{@line_count}]:"+@lines[@line_count]
+      console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
   drawText:->
     @clear()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR
@@ -143,14 +146,15 @@ class UtilWindow extends Sprite
     y = @DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT
     for i, idx in @lines[@current_line..(@current_line+@content_lines - 1)]
       @ctx.fillText(i, x, y+idx*@DEFAULT.LINE_HEIGHT)
-    if @current_line + 1 <= @lines.length
+    if @current_line + 1 < @lines.length
       @current_line += @content_lines
       @drawMarker()
+      @state = @STATE.PAGE_END
       console.log "@current_line(after added):"+@current_line
     else
       @current_line = 0
+      @state = @STATE.MESSAGE_EXIT
       console.log "@current_line(after initilized):"+@current_line
-
   drawMarker:->
     x1 = Math.floor(@width/2) - @DEFAULT.PAGE_MARKER_WIDTH/2
     x2 = Math.floor(@width/2) + @DEFAULT.PAGE_MARKER_WIDTH/2
@@ -166,6 +170,9 @@ class UtilWindow extends Sprite
     @ctx.fill()
   update:->
     return
+  onClick:->
+    if @state is @STATE.PAGE_END
+      @drawText()
 
 class UtilWindow_old
   DEFAULT:{

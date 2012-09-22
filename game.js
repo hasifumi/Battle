@@ -100,7 +100,7 @@
         return this.bEngine.update();
       });
       this.addChild(lblAttack);
-      uw1 = new UtilWindow(100, 50);
+      uw1 = new UtilWindow(130, 50);
       uw1.x = 50;
       uw1.y = 100;
       this.addChild(uw1);
@@ -311,6 +311,7 @@
     };
 
     function UtilWindow(w, h) {
+      var _this = this;
       UtilWindow.__super__.constructor.call(this, w, h);
       this.width = w;
       this.height = h;
@@ -325,9 +326,13 @@
       this.line_count = 0;
       this.current_line = 0;
       this.lines = [];
+      this.state = this.STATE.NONE;
       this.clear();
       this.setText("1234567890123456789012345678901234567890");
       this.drawText();
+      this.addEventListener('touchend', function() {
+        return _this.onClick();
+      });
     }
 
     UtilWindow.prototype.clear = function() {
@@ -355,7 +360,7 @@
       }
       if (line !== "") {
         this.lines[this.line_count] = line;
-        return console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
+        return console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count] + ", @lines.length:" + this.lines.length);
       }
     };
 
@@ -371,12 +376,14 @@
         i = _ref[idx];
         this.ctx.fillText(i, x, y + idx * this.DEFAULT.LINE_HEIGHT);
       }
-      if (this.current_line + 1 <= this.lines.length) {
+      if (this.current_line + 1 < this.lines.length) {
         this.current_line += this.content_lines;
         this.drawMarker();
+        this.state = this.STATE.PAGE_END;
         return console.log("@current_line(after added):" + this.current_line);
       } else {
         this.current_line = 0;
+        this.state = this.STATE.MESSAGE_EXIT;
         return console.log("@current_line(after initilized):" + this.current_line);
       }
     };
@@ -398,6 +405,12 @@
     };
 
     UtilWindow.prototype.update = function() {};
+
+    UtilWindow.prototype.onClick = function() {
+      if (this.state === this.STATE.PAGE_END) {
+        return this.drawText();
+      }
+    };
 
     return UtilWindow;
 
