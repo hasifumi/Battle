@@ -111,6 +111,8 @@ class UtilWindow extends Sprite
 
     @clear()
     @setText("1234567890123456789012345678901234567890")
+    #@setText("123456789012345678901234567890")
+    #setText("123456789012345678901234567890123456789012345678901234567890")
     @drawText()
     #@addEventListener 'enterframe', =>
     #  @update()
@@ -146,11 +148,13 @@ class UtilWindow extends Sprite
     y = @DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT
     for i, idx in @lines[@current_line..(@current_line+@content_lines - 1)]
       @ctx.fillText(i, x, y+idx*@DEFAULT.LINE_HEIGHT)
-    if @current_line + 1 < @lines.length
+    #if @current_line + 1 <= @lines.length
+    if @current_line + @content_lines + 1 <= @lines.length
+      console.log "@current_line(before added):"+@current_line+", @lines.length:"+@lines.length
       @current_line += @content_lines
       @drawMarker()
       @state = @STATE.PAGE_END
-      console.log "@current_line(after added):"+@current_line
+      console.log "@current_line(after added):"+@current_line+", @lines.length:"+@lines.length
     else
       @current_line = 0
       @state = @STATE.MESSAGE_EXIT

@@ -100,7 +100,7 @@
         return this.bEngine.update();
       });
       this.addChild(lblAttack);
-      uw1 = new UtilWindow(130, 50);
+      uw1 = new UtilWindow(230, 80);
       uw1.x = 50;
       uw1.y = 100;
       this.addChild(uw1);
@@ -376,11 +376,12 @@
         i = _ref[idx];
         this.ctx.fillText(i, x, y + idx * this.DEFAULT.LINE_HEIGHT);
       }
-      if (this.current_line + 1 < this.lines.length) {
+      if (this.current_line + this.content_lines + 1 <= this.lines.length) {
+        console.log("@current_line(before added):" + this.current_line + ", @lines.length:" + this.lines.length);
         this.current_line += this.content_lines;
         this.drawMarker();
         this.state = this.STATE.PAGE_END;
-        return console.log("@current_line(after added):" + this.current_line);
+        return console.log("@current_line(after added):" + this.current_line + ", @lines.length:" + this.lines.length);
       } else {
         this.current_line = 0;
         this.state = this.STATE.MESSAGE_EXIT;
