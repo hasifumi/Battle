@@ -79,6 +79,8 @@ class UtilWindow extends Sprite
     PADDING:3
     LINE_HEIGHT:16
     OPACITY:0.6
+    PAGE_MARKER_HEIGHT:10
+    PAGE_MARKER_WIDTH:20
   }
   STATE:{
     NONE: 0
@@ -99,11 +101,15 @@ class UtilWindow extends Sprite
     @image = @sur
     @opacity = @DEFAULT.OPACITY
     @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
-    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
+    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
     console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
+    @line_count = 0
+    @current_line = 0
+    @lines = []
+
     @clear()
-    @setText("12345678901234567890")
+    @setText("1234567890123456789012345678901234567890")
     @drawText()
     #@addEventListener 'enterframe', =>
     #  @update()
@@ -115,33 +121,49 @@ class UtilWindow extends Sprite
     @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)
   setText:(text)->
     pos = 0
-    line_count = 0
     line = ""
-    @lines = []
     @ctx.font = @DEFAULT.FONT
     for i in text
-      console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width)
+      #console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width)
       if @ctx.measureText(line+i).width <= @content_width
         line = line+i
       else
-        @lines[line_count] = line
-        console.log "@lines[#{line_count}]:"+@lines[line_count]
+        @lines[@line_count] = line
+        console.log "@lines[#{@line_count}]:"+@lines[@line_count]
         line = i
-        line_count++
+        @line_count++
     if line isnt ""
-      @lines[line_count] = line
-      console.log "@lines[#{line_count}]:"+@lines[line_count]
+      @lines[@line_count] = line
+      console.log "@lines[#{@line_count}]:"+@lines[@line_count]
   drawText:->
     @clear()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR
     @ctx.font = @DEFAULT.FONT
     x = @DEFAULT.BORDER+@DEFAULT.PADDING
     y = @DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT
-    for i, idx in @lines
+    for i, idx in @lines[@current_line..(@current_line+@content_lines - 1)]
       @ctx.fillText(i, x, y+idx*@DEFAULT.LINE_HEIGHT)
-    #@ctx.fillText(text, @DEFAULT.BORDER+@DEFAULT.PADDING, \
-    #@DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT)
-    #console.log @ctx.measureText(text).width
+    if @current_line + 1 <= @lines.length
+      @current_line += @content_lines
+      @drawMarker()
+      console.log "@current_line(after added):"+@current_line
+    else
+      @current_line = 0
+      console.log "@current_line(after initilized):"+@current_line
+
+  drawMarker:->
+    x1 = Math.floor(@width/2) - @DEFAULT.PAGE_MARKER_WIDTH/2
+    x2 = Math.floor(@width/2) + @DEFAULT.PAGE_MARKER_WIDTH/2
+    x3 = Math.floor(@width/2)
+    y1 = @height - @DEFAULT.BORDER - @DEFAULT.PADDING - (@DEFAULT.PAGE_MARKER_HEIGHT - 2)
+    y2 = @height - @DEFAULT.BORDER - @DEFAULT.PADDING - 2
+    @ctx.fillStyle = @DEFAULT.FONT_COLOR
+    @ctx.beginPath()
+    @ctx.moveTo(x1, y1)
+    @ctx.lineTo(x2, y1)
+    @ctx.lineTo(x3, y2)
+    @ctx.closePath()
+    @ctx.fill()
   update:->
     return
 

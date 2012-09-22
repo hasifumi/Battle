@@ -100,7 +100,7 @@
         return this.bEngine.update();
       });
       this.addChild(lblAttack);
-      uw1 = new UtilWindow(150, 50);
+      uw1 = new UtilWindow(100, 50);
       uw1.x = 50;
       uw1.y = 100;
       this.addChild(uw1);
@@ -294,7 +294,9 @@
       FONT: '14px monospace',
       PADDING: 3,
       LINE_HEIGHT: 16,
-      OPACITY: 0.6
+      OPACITY: 0.6,
+      PAGE_MARKER_HEIGHT: 10,
+      PAGE_MARKER_WIDTH: 20
     };
 
     UtilWindow.prototype.STATE = {
@@ -317,11 +319,14 @@
       this.image = this.sur;
       this.opacity = this.DEFAULT.OPACITY;
       this.content_width = this.width - this.DEFAULT.BORDER * 2 - this.DEFAULT.PADDING * 2;
-      this.content_height = this.height - this.DEFAULT.BORDER * 2 - this.DEFAULT.PADDING * 2;
+      this.content_height = this.height - this.DEFAULT.BORDER * 2 - this.DEFAULT.PADDING * 2 - this.DEFAULT.PAGE_MARKER_HEIGHT;
       this.content_lines = Math.floor(this.content_height / this.DEFAULT.LINE_HEIGHT);
       console.log("content_width:" + this.content_width + ", height:" + this.content_height + ", lines:" + this.content_lines);
+      this.line_count = 0;
+      this.current_line = 0;
+      this.lines = [];
       this.clear();
-      this.setText("12345678901234567890");
+      this.setText("1234567890123456789012345678901234567890");
       this.drawText();
     }
 
@@ -333,44 +338,63 @@
     };
 
     UtilWindow.prototype.setText = function(text) {
-      var i, line, line_count, pos, _i, _len;
+      var i, line, pos, _i, _len;
       pos = 0;
-      line_count = 0;
       line = "";
-      this.lines = [];
       this.ctx.font = this.DEFAULT.FONT;
       for (_i = 0, _len = text.length; _i < _len; _i++) {
         i = text[_i];
-        console.log("line:" + line + ", i:" + i + ", width:" + this.ctx.measureText(line + i).width);
         if (this.ctx.measureText(line + i).width <= this.content_width) {
           line = line + i;
         } else {
-          this.lines[line_count] = line;
-          console.log(("@lines[" + line_count + "]:") + this.lines[line_count]);
+          this.lines[this.line_count] = line;
+          console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
           line = i;
-          line_count++;
+          this.line_count++;
         }
       }
       if (line !== "") {
-        this.lines[line_count] = line;
-        return console.log(("@lines[" + line_count + "]:") + this.lines[line_count]);
+        this.lines[this.line_count] = line;
+        return console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
       }
     };
 
     UtilWindow.prototype.drawText = function() {
-      var i, idx, x, y, _i, _len, _ref, _results;
+      var i, idx, x, y, _i, _len, _ref;
       this.clear();
       this.ctx.fillStyle = this.DEFAULT.FONT_COLOR;
       this.ctx.font = this.DEFAULT.FONT;
       x = this.DEFAULT.BORDER + this.DEFAULT.PADDING;
       y = this.DEFAULT.BORDER + this.DEFAULT.PADDING + this.DEFAULT.LINE_HEIGHT;
-      _ref = this.lines;
-      _results = [];
+      _ref = this.lines.slice(this.current_line, (this.current_line + this.content_lines - 1) + 1 || 9e9);
       for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
         i = _ref[idx];
-        _results.push(this.ctx.fillText(i, x, y + idx * this.DEFAULT.LINE_HEIGHT));
+        this.ctx.fillText(i, x, y + idx * this.DEFAULT.LINE_HEIGHT);
       }
-      return _results;
+      if (this.current_line + 1 <= this.lines.length) {
+        this.current_line += this.content_lines;
+        this.drawMarker();
+        return console.log("@current_line(after added):" + this.current_line);
+      } else {
+        this.current_line = 0;
+        return console.log("@current_line(after initilized):" + this.current_line);
+      }
+    };
+
+    UtilWindow.prototype.drawMarker = function() {
+      var x1, x2, x3, y1, y2;
+      x1 = Math.floor(this.width / 2) - this.DEFAULT.PAGE_MARKER_WIDTH / 2;
+      x2 = Math.floor(this.width / 2) + this.DEFAULT.PAGE_MARKER_WIDTH / 2;
+      x3 = Math.floor(this.width / 2);
+      y1 = this.height - this.DEFAULT.BORDER - this.DEFAULT.PADDING - (this.DEFAULT.PAGE_MARKER_HEIGHT - 2);
+      y2 = this.height - this.DEFAULT.BORDER - this.DEFAULT.PADDING - 2;
+      this.ctx.fillStyle = this.DEFAULT.FONT_COLOR;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x1, y1);
+      this.ctx.lineTo(x2, y1);
+      this.ctx.lineTo(x3, y2);
+      this.ctx.closePath();
+      return this.ctx.fill();
     };
 
     UtilWindow.prototype.update = function() {};
