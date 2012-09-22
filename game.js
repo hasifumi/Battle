@@ -326,9 +326,11 @@
       this.line_count = 0;
       this.current_line = 0;
       this.lines = [];
+      this.skip_count = 0;
+      this.br_flag = 0;
       this.state = this.STATE.NONE;
       this.clear();
-      this.setText("1234567890123456789012345678901234567890");
+      this.setText("1234567890<:br>1234567890<:br>1234567890<:br>1234567890");
       this.drawText();
       this.addEventListener('touchend', function() {
         return _this.onClick();
@@ -343,19 +345,34 @@
     };
 
     UtilWindow.prototype.setText = function(text) {
-      var i, line, pos, _i, _len;
+      var i, idx, line, pos, _i, _len;
       pos = 0;
       line = "";
       this.ctx.font = this.DEFAULT.FONT;
-      for (_i = 0, _len = text.length; _i < _len; _i++) {
-        i = text[_i];
-        if (this.ctx.measureText(line + i).width <= this.content_width) {
-          line = line + i;
+      for (idx = _i = 0, _len = text.length; _i < _len; idx = ++_i) {
+        i = text[idx];
+        if (this.skip_count === 0) {
+          if (i === "<") {
+            if (text.slice(idx, (idx + 4) + 1 || 9e9) === "<:br>") {
+              this.skip_count = 4;
+              this.br_flag = 1;
+            }
+            if (text.slice(idx, (idx + 6) + 1 || 9e9) === "<:page>") {
+              this.skip_count = 6;
+            }
+          } else {
+            if (this.ctx.measureText(line + i).width <= this.content_width && this.br_flag === 0) {
+              line = line + i;
+            } else {
+              this.lines[this.line_count] = line;
+              console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
+              line = i;
+              this.line_count++;
+              this.br_flag = 0;
+            }
+          }
         } else {
-          this.lines[this.line_count] = line;
-          console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
-          line = i;
-          this.line_count++;
+          this.skip_count--;
         }
       }
       if (line !== "") {

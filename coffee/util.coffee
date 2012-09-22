@@ -107,10 +107,12 @@ class UtilWindow extends Sprite
     @line_count = 0
     @current_line = 0
     @lines = []
+    @skip_count = 0
+    @br_flag = 0
     @state = @STATE.NONE
 
     @clear()
-    @setText("1234567890123456789012345678901234567890")
+    @setText("1234567890<:br>1234567890<:br>1234567890<:br>1234567890")
     #@setText("123456789012345678901234567890")
     #setText("123456789012345678901234567890123456789012345678901234567890")
     @drawText()
@@ -128,15 +130,26 @@ class UtilWindow extends Sprite
     pos = 0
     line = ""
     @ctx.font = @DEFAULT.FONT
-    for i in text
+    for i,idx in text
       #console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width)
-      if @ctx.measureText(line+i).width <= @content_width
-        line = line+i
+      if @skip_count is 0
+        if i is "<"
+          if text[idx..idx+4] is "<:br>"
+            @skip_count = 4
+            @br_flag = 1
+          if text[idx..idx+6] is "<:page>"
+            @skip_count = 6
+        else
+          if @ctx.measureText(line+i).width <= @content_width and @br_flag is 0
+            line = line+i
+          else
+            @lines[@line_count] = line
+            console.log "@lines[#{@line_count}]:"+@lines[@line_count]
+            line = i
+            @line_count++
+            @br_flag = 0
       else
-        @lines[@line_count] = line
-        console.log "@lines[#{@line_count}]:"+@lines[@line_count]
-        line = i
-        @line_count++
+        @skip_count--
     if line isnt ""
       @lines[@line_count] = line
       console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
