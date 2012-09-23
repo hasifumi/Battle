@@ -291,7 +291,7 @@
       LINE_COLOR: 'orange',
       BORDER: 2,
       FONT_COLOR: 'white',
-      FONT: '14px monospace',
+      FONT: '14px sans-serif',
       PADDING: 3,
       LINE_HEIGHT: 16,
       OPACITY: 0.6,
@@ -323,35 +323,32 @@
       this.content_height = this.height - this.DEFAULT.BORDER * 2 - this.DEFAULT.PADDING * 2 - this.DEFAULT.PAGE_MARKER_HEIGHT;
       this.content_lines = Math.floor(this.content_height / this.DEFAULT.LINE_HEIGHT);
       console.log("content_width:" + this.content_width + ", height:" + this.content_height + ", lines:" + this.content_lines);
-      this.line_count = 0;
-      this.current_line = 0;
-      this.lines = [];
-      this.skip_count = 0;
-      this.br_flag = 0;
-      this.page_flag = 0;
       this.state = this.STATE.NONE;
-      this.clear();
-      this.setText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890");
+      this.clearText();
+      this.setText("モンスターが現れた！");
+      this.setText("モンスター１がプレイヤー１を攻撃！");
       this.drawText();
       this.addEventListener('touchend', function() {
         return _this.onClick();
       });
     }
 
-    UtilWindow.prototype.clear = function() {
+    UtilWindow.prototype.clearText = function() {
       this.ctx.fillStyle = this.DEFAULT.BACKGROUND_COLOR;
       this.ctx.fillRect(0, 0, this.width, this.height);
       this.ctx.strokeStyle = this.DEFAULT.LINE_COLOR;
-      return this.ctx.strokeRect(this.DEFAULT.BORDER, this.DEFAULT.BORDER, this.width - this.DEFAULT.BORDER * 2, this.height - this.DEFAULT.BORDER * 2);
+      this.ctx.strokeRect(this.DEFAULT.BORDER, this.DEFAULT.BORDER, this.width - this.DEFAULT.BORDER * 2, this.height - this.DEFAULT.BORDER * 2);
+      this.line_count = 0;
+      this.current_line = 0;
+      this.lines = [];
+      this.skip_count = 0;
+      return this.br_flag = 0;
     };
 
     UtilWindow.prototype.setText = function(text) {
-      var cnt, i, idx, j, line, pos, _i, _j, _len;
-      pos = 0;
+      var cnt, i, idx, j, line, _i, _j, _len;
       line = "";
       this.ctx.font = this.DEFAULT.FONT;
-      this.br_flag = 0;
-      this.page_flag = 0;
       for (idx = _i = 0, _len = text.length; _i < _len; idx = ++_i) {
         i = text[idx];
         console.log("line:" + line + ", i:" + i + ", width:" + this.ctx.measureText(line + i).width + ", skip_count:" + this.skip_count + ", @br_flag:" + this.br_flag);
@@ -388,13 +385,13 @@
       }
       if (line !== "") {
         this.lines[this.line_count] = line;
-        return console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count] + ", @lines.length:" + this.lines.length);
+        console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count] + ", @lines.length:" + this.lines.length);
+        return this.line_count++;
       }
     };
 
     UtilWindow.prototype.drawText = function() {
       var i, idx, x, y, _i, _len, _ref;
-      this.clear();
       this.ctx.fillStyle = this.DEFAULT.FONT_COLOR;
       this.ctx.font = this.DEFAULT.FONT;
       x = this.DEFAULT.BORDER + this.DEFAULT.PADDING;
@@ -402,18 +399,16 @@
       _ref = this.lines.slice(this.current_line, (this.current_line + this.content_lines - 1) + 1 || 9e9);
       for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
         i = _ref[idx];
+        this.ctx.font = this.DEFAULT.FONT;
         this.ctx.fillText(i, x, y + idx * this.DEFAULT.LINE_HEIGHT);
       }
       if (this.current_line + this.content_lines + 1 <= this.lines.length) {
-        console.log("@current_line(before added):" + this.current_line + ", @lines.length:" + this.lines.length);
         this.current_line += this.content_lines;
         this.drawMarker();
-        this.state = this.STATE.PAGE_END;
-        return console.log("@current_line(after added):" + this.current_line + ", @lines.length:" + this.lines.length);
+        return this.state = this.STATE.PAGE_END;
       } else {
         this.current_line = 0;
-        this.state = this.STATE.MESSAGE_EXIT;
-        return console.log("@current_line(after initilized):" + this.current_line);
+        return this.state = this.STATE.MESSAGE_EXIT;
       }
     };
 

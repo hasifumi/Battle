@@ -104,36 +104,31 @@ class UtilWindow extends Sprite
     @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
     console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
-    @line_count = 0
-    @current_line = 0
-    @lines = []
-    @skip_count = 0
-    @br_flag = 0
-    @page_flag = 0
     @state = @STATE.NONE
 
-    @clear()
-    #@setText("1234567890<:br><:br>22345678903234567890<:br>4234567890")
-    @setText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
-    #@setText("123456789012345678901234567890")
-    #setText("123456789012345678901234567890123456789012345678901234567890")
+    @clearText()
+    #@setText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
+    #@setText("Monsters appeared!")
+    #@setText("<:br>Monster1 attacked Player1!")
+    @setText("モンスターが現れた！")
+    @setText("モンスター１がプレイヤー１を攻撃！")
     @drawText()
-    #@addEventListener 'enterframe', =>
-    #  @update()
     @addEventListener 'touchend', =>
       @onClick()
-  clear:->
+  clearText:->
     @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
     @ctx.fillRect(0, 0, @width, @height)
     @ctx.strokeStyle = @DEFAULT.LINE_COLOR
     @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
     @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)
+    @line_count = 0
+    @current_line = 0
+    @lines = []
+    @skip_count = 0
+    @br_flag = 0
   setText:(text)->
-    pos = 0
     line = ""
     @ctx.font = @DEFAULT.FONT
-    @br_flag = 0
-    @page_flag = 0
     for i,idx in text
       console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag)
       if @skip_count isnt 0
@@ -162,24 +157,25 @@ class UtilWindow extends Sprite
     if line isnt ""
       @lines[@line_count] = line
       console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
+      @line_count++
   drawText:->
-    @clear()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR
     @ctx.font = @DEFAULT.FONT
     x = @DEFAULT.BORDER+@DEFAULT.PADDING
     y = @DEFAULT.BORDER+@DEFAULT.PADDING+@DEFAULT.LINE_HEIGHT
     for i, idx in @lines[@current_line..(@current_line+@content_lines - 1)]
+      @ctx.font = @DEFAULT.FONT
       @ctx.fillText(i, x, y+idx*@DEFAULT.LINE_HEIGHT)
     if @current_line + @content_lines + 1 <= @lines.length
-      console.log "@current_line(before added):"+@current_line+", @lines.length:"+@lines.length
+      #console.log "@current_line(before added):"+@current_line+", @lines.length:"+@lines.length
       @current_line += @content_lines
       @drawMarker()
       @state = @STATE.PAGE_END
-      console.log "@current_line(after added):"+@current_line+", @lines.length:"+@lines.length
+      #console.log "@current_line(after added):"+@current_line+", @lines.length:"+@lines.length
     else
       @current_line = 0
       @state = @STATE.MESSAGE_EXIT
-      console.log "@current_line(after initilized):"+@current_line
+      #console.log "@current_line(after initilized):"+@current_line
   drawMarker:->
     x1 = Math.floor(@width/2) - @DEFAULT.PAGE_MARKER_WIDTH/2
     x2 = Math.floor(@width/2) + @DEFAULT.PAGE_MARKER_WIDTH/2
