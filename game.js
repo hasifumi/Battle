@@ -331,7 +331,7 @@
       this.page_flag = 0;
       this.state = this.STATE.NONE;
       this.clear();
-      this.setText("1234567890<:br><:br>22345678903234567890<:br>4234567890");
+      this.setText("<:page>1234567890<:page>2234567890<:page>3234567890<:br>4234567890");
       this.drawText();
       this.addEventListener('touchend', function() {
         return _this.onClick();
@@ -346,39 +346,43 @@
     };
 
     UtilWindow.prototype.setText = function(text) {
-      var i, idx, line, pos, _i, _len;
+      var cnt, i, idx, line, pos, _i, _j, _len;
       pos = 0;
       line = "";
       this.ctx.font = this.DEFAULT.FONT;
+      this.br_flag = 0;
+      this.page_flag = 0;
       for (idx = _i = 0, _len = text.length; _i < _len; idx = ++_i) {
         i = text[idx];
-        console.log("line:" + line + ", i:" + i + ", width:" + this.ctx.measureText(line + i).width + ", skip_count:" + this.skip_count);
-        if (this.skip_count === 0) {
+        if (this.skip_count !== 0) {
+          this.skip_count--;
+        } else {
           if (i === "<") {
             if (text.slice(idx, (idx + 4) + 1 || 9e9) === "<:br>") {
               this.skip_count = 4;
               this.br_flag += 1;
-            } else {
-              if (text.slice(idx, (idx + 6) + 1 || 9e9) === "<:page>") {
-                this.skip_count = 6;
-                this.br_flag = 1;
-                this.page_flag = 1;
-              }
+            }
+            if (text.slice(idx, (idx + 6) + 1 || 9e9) === "<:page>") {
+              this.skip_count = 6;
+              console.log("@content_lines - (@line_count % @content_lines):" + (this.content_lines - (this.line_count % this.content_lines)));
+              this.br_flag += this.content_lines - (this.line_count % this.content_lines);
             }
           } else {
-            if (this.ctx.measureText(line + i).width <= this.content_width && this.br_flag === 0) {
-              line = line + i;
-            } else {
-              this.lines[this.line_count] = line;
-              console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
-              line = i;
-              this.line_count++;
-              this.br_flag--;
-              this.page_flag = 0;
+            if (this.ctx.measureText(line + i).width > this.content_width) {
+              this.br_flag += 1;
             }
+            if (this.br_flag !== 0) {
+              cnt = this.br_flag;
+              for (i = _j = 0; 0 <= cnt ? _j < cnt : _j > cnt; i = 0 <= cnt ? ++_j : --_j) {
+                this.lines[this.line_count] = line;
+                console.log(("@lines[" + this.line_count + "]:") + this.lines[this.line_count]);
+                this.line_count++;
+                this.br_flag--;
+                line = "";
+              }
+            }
+            line = line + i;
           }
-        } else {
-          this.skip_count--;
         }
       }
       if (line !== "") {
