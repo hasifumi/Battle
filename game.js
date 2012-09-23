@@ -233,7 +233,7 @@
 
     function UtilFunc() {}
 
-    UtilFunc.prototype.flg = false;
+    UtilFunc.prototype.flg = true;
 
     UtilFunc.prototype.getTextLength = function(text) {
       var i, len, _i, _len;
@@ -291,7 +291,7 @@
       LINE_COLOR: 'orange',
       BORDER: 2,
       FONT_COLOR: 'white',
-      FONT: '14px sans-serif',
+      FONT: '14px monospace',
       PADDING: 3,
       LINE_HEIGHT: 16,
       OPACITY: 0.6,
@@ -324,9 +324,18 @@
       this.content_lines = Math.floor(this.content_height / this.DEFAULT.LINE_HEIGHT);
       console.log("content_width:" + this.content_width + ", height:" + this.content_height + ", lines:" + this.content_lines);
       this.state = this.STATE.NONE;
+      this.func = new UtilFunc();
+      this.line_count = 0;
+      this.current_line = 0;
+      this.lines = [];
+      this.skip_count = 0;
+      this.br_flag = 0;
       this.clearText();
-      this.setText("モンスターが現れた！");
-      this.setText("モンスター１がプレイヤー１を攻撃！");
+      this.addText("Monsters appeared!");
+      this.addText("<:br>Monster1 attacked Player1!");
+      this.addText("<:br>モンスターが現れた！");
+      this.addText("<:br>モンスター１がプレイヤー１を攻撃！");
+      this.addText("<:br>Monster2がPlayer2を攻撃！");
       this.drawText();
       this.addEventListener('touchend', function() {
         return _this.onClick();
@@ -337,21 +346,30 @@
       this.ctx.fillStyle = this.DEFAULT.BACKGROUND_COLOR;
       this.ctx.fillRect(0, 0, this.width, this.height);
       this.ctx.strokeStyle = this.DEFAULT.LINE_COLOR;
-      this.ctx.strokeRect(this.DEFAULT.BORDER, this.DEFAULT.BORDER, this.width - this.DEFAULT.BORDER * 2, this.height - this.DEFAULT.BORDER * 2);
-      this.line_count = 0;
-      this.current_line = 0;
-      this.lines = [];
-      this.skip_count = 0;
-      return this.br_flag = 0;
+      return this.ctx.strokeRect(this.DEFAULT.BORDER, this.DEFAULT.BORDER, this.width - this.DEFAULT.BORDER * 2, this.height - this.DEFAULT.BORDER * 2);
     };
 
-    UtilWindow.prototype.setText = function(text) {
-      var cnt, i, idx, j, line, _i, _j, _len;
+    UtilWindow.prototype.addText = function(text) {
+      var chars, cnt, i, idx, j, line, zenkaku_flag, _i, _j, _len;
+      chars = "";
       line = "";
+      zenkaku_flag = false;
       this.ctx.font = this.DEFAULT.FONT;
+      console.log("text:" + text);
       for (idx = _i = 0, _len = text.length; _i < _len; idx = ++_i) {
         i = text[idx];
-        console.log("line:" + line + ", i:" + i + ", width:" + this.ctx.measureText(line + i).width + ", skip_count:" + this.skip_count + ", @br_flag:" + this.br_flag);
+        if (zenkaku_flag) {
+          zenkaku_flag = false;
+          break;
+        }
+        if (this.func.isZenkaku(i)) {
+          chars = text[idx];
+          zenkaku_flag = true;
+        } else {
+          chars = i;
+          zenkaku_flag = false;
+        }
+        console.log("line:" + line + ", chars:" + chars + ", width:" + this.ctx.measureText(line + i).width + ", skip_count:" + this.skip_count + ", @br_flag:" + this.br_flag + ", zenkaku_flag:" + zenkaku_flag);
         if (this.skip_count !== 0) {
           this.skip_count--;
         } else {
@@ -376,11 +394,12 @@
                 line = "";
               }
             }
-            line = line + i;
-            if (this.ctx.measureText(line + i).width > this.content_width) {
+            line = line + chars;
+            if (this.ctx.measureText(line + chars).width > this.content_width) {
               this.br_flag += 1;
             }
           }
+          zenkaku_flag = false;
         }
       }
       if (line !== "") {
@@ -392,6 +411,7 @@
 
     UtilWindow.prototype.drawText = function() {
       var i, idx, x, y, _i, _len, _ref;
+      this.clearText();
       this.ctx.fillStyle = this.DEFAULT.FONT_COLOR;
       this.ctx.font = this.DEFAULT.FONT;
       x = this.DEFAULT.BORDER + this.DEFAULT.PADDING;

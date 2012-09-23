@@ -42,7 +42,7 @@
 #    @setText text
 #    
 class UtilFunc
-  flg:false
+  flg:true
   getTextLength:(text)->
     len = 0
     for i in text
@@ -105,13 +105,21 @@ class UtilWindow extends Sprite
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
     console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
     @state = @STATE.NONE
+    @func = new UtilFunc()
+
+    @line_count = 0
+    @current_line = 0
+    @lines = []
+    @skip_count = 0
+    @br_flag = 0
 
     @clearText()
-    #@setText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
-    #@setText("Monsters appeared!")
-    #@setText("<:br>Monster1 attacked Player1!")
-    @setText("モンスターが現れた！")
-    @setText("モンスター１がプレイヤー１を攻撃！")
+    #@addText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
+    @addText("Monsters appeared!")
+    @addText("<:br>Monster1 attacked Player1!")
+    @addText("<:br>モンスターが現れた！")
+    @addText("<:br>モンスター１がプレイヤー１を攻撃！")
+    @addText("<:br>Monster2がPlayer2を攻撃！")
     @drawText()
     @addEventListener 'touchend', =>
       @onClick()
@@ -121,16 +129,24 @@ class UtilWindow extends Sprite
     @ctx.strokeStyle = @DEFAULT.LINE_COLOR
     @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
     @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)
-    @line_count = 0
-    @current_line = 0
-    @lines = []
-    @skip_count = 0
-    @br_flag = 0
-  setText:(text)->
+  addText:(text)->
+    chars = ""
     line = ""
+    zenkaku_flag = false
     @ctx.font = @DEFAULT.FONT
+    console.log "text:"+text
     for i,idx in text
-      console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag)
+      if zenkaku_flag
+        zenkaku_flag = false
+        break
+      if @func.isZenkaku(i)
+        #chars = text[idx..(idx+1)]
+        chars = text[idx]
+        zenkaku_flag = true
+      else
+        chars = i
+        zenkaku_flag = false
+      console.log("line:"+line+", chars:"+chars+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag+", zenkaku_flag:"+zenkaku_flag)
       if @skip_count isnt 0
         @skip_count--
       else
@@ -151,14 +167,18 @@ class UtilWindow extends Sprite
               @line_count++
               @br_flag--
               line = ""
-          line = line+i
-          if @ctx.measureText(line+i).width > @content_width
+          #line = line+i
+          #if @ctx.measureText(line+i).width > @content_width
+          line = line+chars
+          if @ctx.measureText(line+chars).width > @content_width
             @br_flag += 1
+        zenkaku_flag = false
     if line isnt ""
       @lines[@line_count] = line
       console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
       @line_count++
   drawText:->
+    @clearText()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR
     @ctx.font = @DEFAULT.FONT
     x = @DEFAULT.BORDER+@DEFAULT.PADDING
