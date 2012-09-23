@@ -114,7 +114,7 @@ class UtilWindow extends Sprite
 
     @clear()
     #@setText("1234567890<:br><:br>22345678903234567890<:br>4234567890")
-    @setText("<:page>1234567890<:page>2234567890<:page>3234567890<:br>4234567890")
+    @setText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
     #@setText("123456789012345678901234567890")
     #setText("123456789012345678901234567890123456789012345678901234567890")
     @drawText()
@@ -135,7 +135,7 @@ class UtilWindow extends Sprite
     @br_flag = 0
     @page_flag = 0
     for i,idx in text
-      #console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag)
+      console.log("line:"+line+", i:"+i+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag)
       if @skip_count isnt 0
         @skip_count--
       else
@@ -148,17 +148,17 @@ class UtilWindow extends Sprite
             console.log("@content_lines - (@line_count % @content_lines):"+(@content_lines - (@line_count % @content_lines)))
             @br_flag += @content_lines - (@line_count % @content_lines)
         else
-          if @ctx.measureText(line+i).width > @content_width
-            @br_flag += 1
           if @br_flag isnt 0
             cnt = @br_flag
-            for i in [0...cnt]
+            for j in [0...cnt]
               @lines[@line_count] = line
               console.log "@lines[#{@line_count}]:"+@lines[@line_count]
               @line_count++
               @br_flag--
               line = ""
           line = line+i
+          if @ctx.measureText(line+i).width > @content_width
+            @br_flag += 1
     if line isnt ""
       @lines[@line_count] = line
       console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
