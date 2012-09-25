@@ -1,4 +1,4 @@
-#class roundFrame extends Group
+#class roundFrame extends Group# {{{
 #  # w:width, h:height, lw:lineWidth(like)
 #  constructor:(w, h, lw)->
 #    super()
@@ -22,8 +22,8 @@
 #    sp2.x = lw
 #    sp2.y = lw
 #    @addChild sp2
-#
-#class MessageView extends roundFrame
+## }}}
+#class MessageView extends roundFrame# {{{
 #  constructor:(w, h, lw)->
 #    if w? then @w = w else @w = 310
 #    if h? then @h = h else @h = 30
@@ -40,37 +40,40 @@
 #      lbl.text = text
 #  setText:(text)->
 #    @setText text
-#    
-class UtilFunc
+#    # }}}
+class UtilFunc# {{{
   flg:true
-  getTextLength:(text)->
+  getTextLength:(text)-># {{{
     len = 0
     for i in text
       if @flg
-        console.log "i:"+i
+        #console.log "i:"+i
+        aa = "aa"
       if @isZenkaku(text.charAt(_i))
         len += 2
       else
         len++
     if @flg
-      console.log "original: "+text.length
-      console.log "escape  : "+len
-    return len
-  isZenkaku:(char)->
+      aa = "aa"
+      #console.log "original: "+text.length
+      #console.log "escape  : "+len
+    return len# }}}
+  isZenkaku:(char)-># {{{
     _char = escape(char)
     if @flg
-      console.log "char(all:"+_char
-      console.log "charAt(0-1):"+_char.charAt(0)+_char.charAt(1)
+      aa = "aa"
+      #console.log "char(all:"+_char
+      #console.log "charAt(0-1):"+_char.charAt(0)+_char.charAt(1)
     if _char.charAt(0) isnt "%"
       return false
     switch _char.charAt(1)
       when "8", "9", "E", "F", "u"
         return true
       else
-        return false
-
+        return false# }}}
+# }}}
 class UtilWindow extends Sprite
-  DEFAULT:{
+  DEFAULT:{# {{{
     BACKGROUND_COLOR:'black'
     LINE_COLOR:'orange'
     BORDER:2
@@ -81,8 +84,8 @@ class UtilWindow extends Sprite
     OPACITY:0.6
     PAGE_MARKER_HEIGHT:10
     PAGE_MARKER_WIDTH:20
-  }
-  STATE:{
+  }# }}}
+  STATE:{# {{{
     NONE: 0
     PUTTING: 1
     PAGE_WAIT: 2
@@ -91,7 +94,7 @@ class UtilWindow extends Sprite
     PAGE_EXIT: 5
     MESSAGE_EXIT: 6
     EXIT: 7
-  }
+  }# }}}
   constructor:(w, h)->
     super(w, h)
     @width = w
@@ -103,7 +106,7 @@ class UtilWindow extends Sprite
     @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
     @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
-    console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
+    #console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
     @state = @STATE.NONE
     @func = new UtilFunc()
 
@@ -115,12 +118,12 @@ class UtilWindow extends Sprite
 
     @clearText()
     #@addText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
-    @addText("Monsters appeared!")
-    @addText("<:br>Monster1 attacked Player1!")
-    @addText("<:br>モンスターが現れた！")
-    @addText("<:br>モンスター１がプレイヤー１を攻撃！")
-    @addText("<:br>Monster2がPlayer2を攻撃！")
-    @drawText()
+    #@addText("Monsters appeared!")
+    #@addText("<:br>Monster1 attacked Player1!")
+    #@addText("<:br>モンスターが現れた！")
+    #@addText("<:br>モンスター１がプレイヤー１を攻撃！")
+    #@addText("<:br>Monster2がPlayer2を攻撃！")
+    #@drawText()
     @addEventListener 'touchend', =>
       @onClick()
   clearText:->
@@ -134,7 +137,7 @@ class UtilWindow extends Sprite
     line = ""
     zenkaku_flag = false
     @ctx.font = @DEFAULT.FONT
-    console.log "text:"+text
+    #console.log "text:"+text
     for i,idx in text
       if zenkaku_flag
         zenkaku_flag = false
@@ -146,7 +149,7 @@ class UtilWindow extends Sprite
       else
         chars = i
         zenkaku_flag = false
-      console.log("line:"+line+", chars:"+chars+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag+", zenkaku_flag:"+zenkaku_flag)
+      #console.log("line:"+line+", chars:"+chars+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag+", zenkaku_flag:"+zenkaku_flag)
       if @skip_count isnt 0
         @skip_count--
       else
@@ -156,14 +159,14 @@ class UtilWindow extends Sprite
             @br_flag += 1
           if text[idx..idx+6] is "<:page>"
             @skip_count = 6
-            console.log("@content_lines - (@line_count % @content_lines):"+(@content_lines - (@line_count % @content_lines)))
+            #console.log("@content_lines - (@line_count % @content_lines):"+(@content_lines - (@line_count % @content_lines)))
             @br_flag += @content_lines - (@line_count % @content_lines)
         else
           if @br_flag isnt 0
             cnt = @br_flag
             for j in [0...cnt]
               @lines[@line_count] = line
-              console.log "@lines[#{@line_count}]:"+@lines[@line_count]
+              #console.log "@lines[#{@line_count}]:"+@lines[@line_count]
               @line_count++
               @br_flag--
               line = ""
@@ -175,7 +178,7 @@ class UtilWindow extends Sprite
         zenkaku_flag = false
     if line isnt ""
       @lines[@line_count] = line
-      console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
+      #console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
       @line_count++
   drawText:->
     @clearText()

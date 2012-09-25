@@ -19,7 +19,6 @@ class BattleScene extends Scene
     @addChild lblAttack
 
     uw1 = new UtilWindow(230, 80)
-    #uw1.setText("bbbbbbbbbbbbbbbbbb")
     uw1.x = 50
     uw1.y = 100
     @addChild uw1
