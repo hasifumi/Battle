@@ -3,7 +3,16 @@ class BattleScene extends Scene
     super()
     #@backgroundColor = "black"
     @game = enchant.Game.instance
-    @bEngine = new BattleEngine()
+
+    uw1 = new UtilWindow(230, 80)
+    uw1.x = 50
+    uw1.y = 100
+    @addChild uw1
+    #lines = ["aaa", "bbb", "ccc"]
+    #uw1.setLines(lines)
+    #uw1.drawText()
+
+    @bEngine = new BattleEngine(uw1)
     @bEngine.addMember(@game.player)
     @bEngine.addMember(@game.enemy)
     lblAttack =  new Label("Attack")
@@ -18,7 +27,3 @@ class BattleScene extends Scene
       @bEngine.update()
     @addChild lblAttack
 
-    uw1 = new UtilWindow(230, 80)
-    uw1.x = 50
-    uw1.y = 100
-    @addChild uw1

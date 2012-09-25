@@ -180,6 +180,17 @@ class UtilWindow extends Sprite
       @lines[@line_count] = line
       #console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
       @line_count++
+  setLines:(lines)=>
+    if !lines?
+      return
+    for l in lines
+      @addText(l)
+  clearLines:()=>
+    @line_count = 0
+    @current_line = 0
+    @lines = []
+    @skip_count = 0
+    @br_flag = 0
   drawText:->
     @clearText()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR

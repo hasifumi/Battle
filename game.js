@@ -83,7 +83,11 @@
         _this = this;
       BattleScene.__super__.constructor.call(this);
       this.game = enchant.Game.instance;
-      this.bEngine = new BattleEngine();
+      uw1 = new UtilWindow(230, 80);
+      uw1.x = 50;
+      uw1.y = 100;
+      this.addChild(uw1);
+      this.bEngine = new BattleEngine(uw1);
       this.bEngine.addMember(this.game.player);
       this.bEngine.addMember(this.game.enemy);
       lblAttack = new Label("Attack");
@@ -99,10 +103,6 @@
         return this.bEngine.update();
       });
       this.addChild(lblAttack);
-      uw1 = new UtilWindow(230, 80);
-      uw1.x = 50;
-      uw1.y = 100;
-      this.addChild(uw1);
     }
 
     return BattleScene;
@@ -111,7 +111,10 @@
 
   BattleEngine = (function() {
 
-    function BattleEngine() {
+    function BattleEngine(msgWin) {
+      this.clearLines = __bind(this.clearLines, this);
+      this.getLines = __bind(this.getLines, this);
+      this.addLine = __bind(this.addLine, this);
       this.doCommand = __bind(this.doCommand, this);
       this.commandAttack = __bind(this.commandAttack, this);
       this.clearCommand = __bind(this.clearCommand, this);
@@ -126,6 +129,9 @@
       this.turn = 0;
       this.target = 1;
       this.game = enchant.Game.instance;
+      this.lines = [];
+      this.clearLines();
+      this.msgWin = msgWin;
     }
 
     BattleEngine.prototype.update = function() {
@@ -185,13 +191,14 @@
       turn_name = this.members[turn].name;
       target_name = this.members[target].name;
       this.members[target].damage(damage);
-      console.log("" + turn_name + " attack " + target_name + "!");
-      console.log("" + target_name + " damaged " + damage + "!");
-      return console.log("" + target_name + "'s hp:" + this.members[target].hp + ", maxHp:" + this.members[target].maxHp + "!");
+      this.msgWin.addText("" + turn_name + " attack " + target_name + "!");
+      this.msgWin.addText("" + target_name + " damaged " + damage + "!");
+      return this.msgWin.addText("" + target_name + "'s hp:" + this.members[target].hp + ", maxHp:" + this.members[target].maxHp + "!");
     };
 
     BattleEngine.prototype.doCommand = function() {
       var i, _i, _len, _ref;
+      this.msgWin.clearLines();
       _ref = this.commands;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         i = _ref[_i];
@@ -203,16 +210,29 @@
             return;
         }
       }
+      this.msgWin.drawText();
       this.clearCommand();
       this.changeState("waitCommand");
       if (this.game.player.hp <= 0) {
-        console.log("Game Over!");
+        this.msgWin.addText("Game Over!");
         this.game.stop();
       }
       if (this.game.enemy.hp <= 0) {
-        console.log("Game Clear!!");
+        this.msgWin.addText("Game Clear!!");
         return this.game.stop();
       }
+    };
+
+    BattleEngine.prototype.addLine = function(line) {
+      return this.lines.push(line);
+    };
+
+    BattleEngine.prototype.getLines = function() {
+      return this.lines;
+    };
+
+    BattleEngine.prototype.clearLines = function() {
+      return this.lines = [];
     };
 
     return BattleEngine;
@@ -291,6 +311,8 @@
     };
 
     function UtilWindow(w, h) {
+      this.clearLines = __bind(this.clearLines, this);
+      this.setLines = __bind(this.setLines, this);
       var _this = this;
       UtilWindow.__super__.constructor.call(this, w, h);
       this.width = w;
@@ -375,6 +397,25 @@
         this.lines[this.line_count] = line;
         return this.line_count++;
       }
+    };
+
+    UtilWindow.prototype.setLines = function(lines) {
+      var l, _i, _len, _results;
+      if (!(lines != null)) return;
+      _results = [];
+      for (_i = 0, _len = lines.length; _i < _len; _i++) {
+        l = lines[_i];
+        _results.push(this.addText(l));
+      }
+      return _results;
+    };
+
+    UtilWindow.prototype.clearLines = function() {
+      this.line_count = 0;
+      this.current_line = 0;
+      this.lines = [];
+      this.skip_count = 0;
+      return this.br_flag = 0;
     };
 
     UtilWindow.prototype.drawText = function() {
