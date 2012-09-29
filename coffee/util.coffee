@@ -106,7 +106,6 @@ class UtilWindow extends Sprite
     @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
     @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
-    #console.log "content_width:"+@content_width+", height:"+@content_height+", lines:"+@content_lines
     @state = @STATE.NONE
     @func = new UtilFunc()
 
@@ -117,13 +116,6 @@ class UtilWindow extends Sprite
     @br_flag = 0
 
     @clearText()
-    #@addText("1234567890<:br><:br>2234567890<:page>3234567890<:br><:br>4234567890")
-    #@addText("Monsters appeared!")
-    #@addText("<:br>Monster1 attacked Player1!")
-    #@addText("<:br>モンスターが現れた！")
-    #@addText("<:br>モンスター１がプレイヤー１を攻撃！")
-    #@addText("<:br>Monster2がPlayer2を攻撃！")
-    #@drawText()
     @addEventListener 'touchend', =>
       @onClick()
   clearText:->
@@ -137,19 +129,16 @@ class UtilWindow extends Sprite
     line = ""
     zenkaku_flag = false
     @ctx.font = @DEFAULT.FONT
-    #console.log "text:"+text
     for i,idx in text
       if zenkaku_flag
         zenkaku_flag = false
         break
       if @func.isZenkaku(i)
-        #chars = text[idx..(idx+1)]
         chars = text[idx]
         zenkaku_flag = true
       else
         chars = i
         zenkaku_flag = false
-      #console.log("line:"+line+", chars:"+chars+", width:"+@ctx.measureText(line+i).width+", skip_count:"+@skip_count+", @br_flag:"+@br_flag+", zenkaku_flag:"+zenkaku_flag)
       if @skip_count isnt 0
         @skip_count--
       else
@@ -159,26 +148,21 @@ class UtilWindow extends Sprite
             @br_flag += 1
           if text[idx..idx+6] is "<:page>"
             @skip_count = 6
-            #console.log("@content_lines - (@line_count % @content_lines):"+(@content_lines - (@line_count % @content_lines)))
             @br_flag += @content_lines - (@line_count % @content_lines)
         else
           if @br_flag isnt 0
             cnt = @br_flag
             for j in [0...cnt]
               @lines[@line_count] = line
-              #console.log "@lines[#{@line_count}]:"+@lines[@line_count]
               @line_count++
               @br_flag--
               line = ""
-          #line = line+i
-          #if @ctx.measureText(line+i).width > @content_width
           line = line+chars
           if @ctx.measureText(line+chars).width > @content_width
             @br_flag += 1
         zenkaku_flag = false
     if line isnt ""
       @lines[@line_count] = line
-      #console.log "@lines[#{@line_count}]:"+@lines[@line_count]+", @lines.length:"+@lines.length
       @line_count++
   setLines:(lines)=>
     if !lines?
@@ -201,15 +185,12 @@ class UtilWindow extends Sprite
       @ctx.font = @DEFAULT.FONT
       @ctx.fillText(i, x, y+idx*@DEFAULT.LINE_HEIGHT)
     if @current_line + @content_lines + 1 <= @lines.length
-      #console.log "@current_line(before added):"+@current_line+", @lines.length:"+@lines.length
       @current_line += @content_lines
       @drawMarker()
       @state = @STATE.PAGE_END
-      #console.log "@current_line(after added):"+@current_line+", @lines.length:"+@lines.length
     else
       @current_line = 0
       @state = @STATE.MESSAGE_EXIT
-      #console.log "@current_line(after initilized):"+@current_line
   drawMarker:->
     x1 = Math.floor(@width/2) - @DEFAULT.PAGE_MARKER_WIDTH/2
     x2 = Math.floor(@width/2) + @DEFAULT.PAGE_MARKER_WIDTH/2
@@ -228,6 +209,10 @@ class UtilWindow extends Sprite
   onClick:->
     if @state is @STATE.PAGE_END
       @drawText()
+
+class SelectDialog extends UtilWindow
+  constructor:(w, h)->
+    super(w, h)
 
 class UtilWindow_old
   DEFAULT:{
