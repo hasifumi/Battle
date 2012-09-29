@@ -211,29 +211,29 @@ class UtilWindow extends Sprite
       @drawText()# }}}
 
 class SelectDialog extends UtilWindow
-  DEFAULT:{# {{{
+  DEFAULT1:{# {{{
     SELECTED_COLOR:'blue'
     SEL_MARKER_WIDTH:10
     SEL_MARKER_HEIGHT:16
   }# }}}
-  constructor:(lines, index)->
-    if lines?
-      @lines = []
-    else
-      @lines = lines
+  constructor:(lines, index)-># {{{
     super(10, 10)
-    @content_width = @max(@lines)
+    if lines?
+      @lines = lines
+    else
+      @lines = []
+    @content_width = @max(@lines)*14
     @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
-    @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT.SEL_MARKER_WIDTH
+    @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
     @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
     if index?
-      @index = 1
-    else
       @index = index
+    else
+      @index = 1
     @setLines(@lines)
     @drawText()
     @addEventListener 'touchend', (e)=>
-      @setIndex(@detectIndex(e))
+      @setIndex(@detectIndex(e))# }}}
   max:(lines)=># {{{
     max = 0
     for i in lines
@@ -267,11 +267,11 @@ class SelectDialog extends UtilWindow
     for i, idx in @lines
       @ctx.font = @DEFAULT.FONT
       if (idx+1) is @Index
-        @ctx.fontStyle = @DEFAULT.SELECTED_COLOR
+        @ctx.fontStyle = @DEFAULT1.SELECTED_COLOR
         @drawMarker(x, y+idx*@DEFAULT.LINE_HEIGHT)
       else
         @ctx.fontStyle = @DEFAULT.FONT_COLOR
-      @ctx.fillText(i, x+@DEFAULT.SEL_MARKER_WIDTH, y+(idx+1)*@DEFAULT.LINE_HEIGHT)
+      @ctx.fillText(i, x+@DEFAULT1.SEL_MARKER_WIDTH, y+(idx+1)*@DEFAULT.LINE_HEIGHT)
     @state = @STATE.PAGE_WAIT# }}}
   drawMarker:(x, y)-># {{{
     x1 = x + 2

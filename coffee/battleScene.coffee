@@ -14,8 +14,8 @@ class BattleScene extends Scene
 
     lines = ["aaaa", "bb", "ccc"]
     sd1 = new SelectDialog(lines, 1)
-    sd1.x = 130
-    sd1.y = 50
+    sd1.x = 50
+    sd1.y = 200
     @addChild sd1
 
     @bEngine = new BattleEngine(uw1)

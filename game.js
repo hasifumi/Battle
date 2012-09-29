@@ -89,8 +89,8 @@
       this.addChild(uw1);
       lines = ["aaaa", "bb", "ccc"];
       sd1 = new SelectDialog(lines, 1);
-      sd1.x = 130;
-      sd1.y = 50;
+      sd1.x = 50;
+      sd1.y = 200;
       this.addChild(sd1);
       this.bEngine = new BattleEngine(uw1);
       this.bEngine.addMember(this.game.player);
@@ -476,7 +476,7 @@
 
     __extends(SelectDialog, _super);
 
-    SelectDialog.prototype.DEFAULT = {
+    SelectDialog.prototype.DEFAULT1 = {
       SELECTED_COLOR: 'blue',
       SEL_MARKER_WIDTH: 10,
       SEL_MARKER_HEIGHT: 16
@@ -488,20 +488,20 @@
       this.detectIndex = __bind(this.detectIndex, this);
       this.max = __bind(this.max, this);
       var _this = this;
-      if (lines != null) {
-        this.lines = [];
-      } else {
-        this.lines = lines;
-      }
       SelectDialog.__super__.constructor.call(this, 10, 10);
-      this.content_width = this.max(this.lines);
+      if (lines != null) {
+        this.lines = lines;
+      } else {
+        this.lines = [];
+      }
+      this.content_width = this.max(this.lines) * 14;
       this.content_height = this.lines.length * this.DEFAULT.LINE_HEIGHT;
-      this.width = this.content_width + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2 + this.DEFAULT.SEL_MARKER_WIDTH;
+      this.width = this.content_width + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2 + this.DEFAULT1.SEL_MARKER_WIDTH;
       this.height = this.content_height + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2;
       if (index != null) {
-        this.index = 1;
-      } else {
         this.index = index;
+      } else {
+        this.index = 1;
       }
       this.setLines(this.lines);
       this.drawText();
@@ -559,12 +559,12 @@
         i = _ref[idx];
         this.ctx.font = this.DEFAULT.FONT;
         if ((idx + 1) === this.Index) {
-          this.ctx.fontStyle = this.DEFAULT.SELECTED_COLOR;
+          this.ctx.fontStyle = this.DEFAULT1.SELECTED_COLOR;
           this.drawMarker(x, y + idx * this.DEFAULT.LINE_HEIGHT);
         } else {
           this.ctx.fontStyle = this.DEFAULT.FONT_COLOR;
         }
-        this.ctx.fillText(i, x + this.DEFAULT.SEL_MARKER_WIDTH, y + (idx + 1) * this.DEFAULT.LINE_HEIGHT);
+        this.ctx.fillText(i, x + this.DEFAULT1.SEL_MARKER_WIDTH, y + (idx + 1) * this.DEFAULT.LINE_HEIGHT);
       }
       return this.state = this.STATE.PAGE_WAIT;
     };
