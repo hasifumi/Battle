@@ -21,12 +21,12 @@
       this.fps = this.config.FPS;
       this.onload = function() {
         this.player = new Charactor({
-          name: "player1",
+          name: "プレイヤー１",
           maxHp: 100
         });
         console.log("" + this.player.name + " create");
         this.enemy = new Charactor({
-          name: "enemy1",
+          name: "敵１",
           maxHp: 50
         });
         console.log("" + this.enemy.name + " create");
@@ -191,9 +191,9 @@
       turn_name = this.members[turn].name;
       target_name = this.members[target].name;
       this.members[target].damage(damage);
-      this.msgWin.addText("" + turn_name + " attack " + target_name + "!");
-      this.msgWin.addText("" + target_name + " damaged " + damage + "!");
-      return this.msgWin.addText("" + target_name + "'s hp:" + this.members[target].hp + ", maxHp:" + this.members[target].maxHp + "!");
+      this.msgWin.addText("" + turn_name + " が " + target_name + " を攻撃！");
+      this.msgWin.addText("" + target_name + " は " + damage + " のダメージ！");
+      return this.msgWin.addText("" + target_name + " のＨＰは " + this.members[target].hp + "／" + this.members[target].maxHp);
     };
 
     BattleEngine.prototype.doCommand = function() {
@@ -291,7 +291,7 @@
       LINE_COLOR: 'orange',
       BORDER: 2,
       FONT_COLOR: 'white',
-      FONT: '14px monospace',
+      FONT: '14px HG丸ｺﾞｼｯｸM-PRO',
       PADDING: 3,
       LINE_HEIGHT: 16,
       OPACITY: 0.6,

@@ -78,7 +78,7 @@ class UtilWindow extends Sprite
     LINE_COLOR:'orange'
     BORDER:2
     FONT_COLOR:'white'
-    FONT:'14px monospace'
+    FONT:'14px HG丸ｺﾞｼｯｸM-PRO'
     PADDING:3
     LINE_HEIGHT:16
     OPACITY:0.6

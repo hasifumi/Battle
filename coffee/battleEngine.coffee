@@ -47,9 +47,9 @@ class BattleEngine
     turn_name = @members[turn].name
     target_name = @members[target].name
     @members[target].damage(damage)
-    @msgWin.addText "#{turn_name} attack #{target_name}!"
-    @msgWin.addText "#{target_name} damaged #{damage}!"
-    @msgWin.addText "#{target_name}'s hp:#{@members[target].hp}, maxHp:#{@members[target].maxHp}!"
+    @msgWin.addText "#{turn_name} が #{target_name} を攻撃！"
+    @msgWin.addText "#{target_name} は #{damage} のダメージ！"
+    @msgWin.addText "#{target_name} のＨＰは #{@members[target].hp}／#{@members[target].maxHp}"
     #console.log "#{turn_name} attack #{target_name}!"
     #console.log "#{target_name} damaged #{damage}!"
     #console.log "#{target_name}'s hp:#{@members[target].hp}, maxHp:#{@members[target].maxHp}!"
