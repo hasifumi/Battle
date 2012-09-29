@@ -95,7 +95,7 @@ class UtilWindow extends Sprite
     MESSAGE_EXIT: 6
     EXIT: 7
   }# }}}
-  constructor:(w, h)->
+  constructor:(w, h)-># {{{
     super(w, h)
     @width = w
     @height = h
@@ -117,14 +117,14 @@ class UtilWindow extends Sprite
 
     @clearText()
     @addEventListener 'touchend', =>
-      @onClick()
-  clearText:->
+      @onClick()# }}}
+  clearText:-># {{{
     @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
     @ctx.fillRect(0, 0, @width, @height)
     @ctx.strokeStyle = @DEFAULT.LINE_COLOR
     @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
-    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)
-  addText:(text)->
+    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)# }}}
+  addText:(text)-># {{{
     chars = ""
     line = ""
     zenkaku_flag = false
@@ -163,19 +163,19 @@ class UtilWindow extends Sprite
         zenkaku_flag = false
     if line isnt ""
       @lines[@line_count] = line
-      @line_count++
-  setLines:(lines)=>
+      @line_count++# }}}
+  setLines:(lines)=># {{{
     if !lines?
       return
     for l in lines
-      @addText(l)
-  clearLines:()=>
+      @addText(l)# }}}
+  clearLines:()=># {{{
     @line_count = 0
     @current_line = 0
     @lines = []
     @skip_count = 0
-    @br_flag = 0
-  drawText:->
+    @br_flag = 0# }}}
+  drawText:-># {{{
     @clearText()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR
     @ctx.font = @DEFAULT.FONT
@@ -190,8 +190,8 @@ class UtilWindow extends Sprite
       @state = @STATE.PAGE_END
     else
       @current_line = 0
-      @state = @STATE.MESSAGE_EXIT
-  drawMarker:->
+      @state = @STATE.MESSAGE_EXIT# }}}
+  drawMarker:-># {{{
     x1 = Math.floor(@width/2) - @DEFAULT.PAGE_MARKER_WIDTH/2
     x2 = Math.floor(@width/2) + @DEFAULT.PAGE_MARKER_WIDTH/2
     x3 = Math.floor(@width/2)
@@ -203,219 +203,93 @@ class UtilWindow extends Sprite
     @ctx.lineTo(x2, y1)
     @ctx.lineTo(x3, y2)
     @ctx.closePath()
-    @ctx.fill()
-  update:->
-    return
-  onClick:->
+    @ctx.fill()# }}}
+  update:-># {{{
+    return# }}}
+  onClick:-># {{{
     if @state is @STATE.PAGE_END
-      @drawText()
+      @drawText()# }}}
 
 class SelectDialog extends UtilWindow
-  constructor:(w, h)->
-    super(w, h)
-
-class UtilWindow_old
-  DEFAULT:{
-    BORDER_SIZE: 1
-    CONTENT_PADDING: 2
-    WIDTH: 224
-    HEIGHT: 160
-    FONT: "14px monospace"
-    LINE_HEIGHT: 18
-  }
-  PROCESS_STAGE:{
-    NONE: 0
-    PUTTING: 1
-    PAGE_WAIT: 2
-    PAGE_START: 3
-    PAGE_END: 4
-    PAGE_EXIT: 5
-    MESSAGE_EXIT: 6
-    EXIT: 7
-  }
-  constructor:(x, y, width, height)->
-    @x = x
-    @y = y
-    @width = if width? then width else @DEFAULT.WIDTH
-    @height = if height? then height else @DEFAULT.HEIGHT
-    @border_size = @DEFAULT.BORDER_SIZE
-    @inner_x = 0
-    @inner_y = 0
-    @inner_width = 0
-    @inner_height = 0
-    @content_padding = @DEFAULT.CONTENT_PADDING
-    @content_x = 0
-    @content_y = 0
-    @content_width = 0
-    @content_height = 0
-    @page_line = 0
-    @fong = @DEFAULT.FONT
-    @line_height = @DEFAULT.LINE_HEIGHT
-    @pageList = []
-    @process_stage = 0
-    @process_count = 0
-    @page_index = 0
-    @putting_line = 0
-    @putting_pos = 0
-    @visible = false
-    @func = new UtilFunc()
-    getX:->
-      return @x
-    getY:->
-      return @y
-    getWidth:->
-      return @width
-    getHeight:->
-      return @height
-    setSize:(width, height)->
-      if width < (@border_size * 2)+(@content_padding * 2) \
-      or height < (@border_size * 2) +(@content_padding * 2)
-        return false
-      @width = width
-      @height = height
-      @inner_width = @width - (@border_size * 2)
-      @inner_height = @height - (@border_size * 2)
-      @content_width = @inner_width - (@content_padding * 2)
-      @content_height = @inner_height - (@content_padding * 2)
-      @page_lines = Math.floor(@content_height / @line_height)
-    setPos:(x, y)->
-      @x = x
-      @y = y
-      @inner_x = x + @border_size
-      @inner_y = y + @border_size
-      @content_x = @inner_x + @content_padding
-      @content_y = @inner_y + @content_padding
-    show:->
-      @visible = true
-    hide:->
-      @visible = false
-    setText:(text, context)=>
-      @pageList = []
-      line = ''
-      lineList = []
-      pos = 0
-      
-      context.font = @font
-      while pos < text.length
-        page_flag = false
-        while pos < text.length and \
-        context.measureText(line+text.charAt(pos)).width < @content_width
-          if text.indexOf('<:br>', pos) is pos
-            pos += 5
-            break
-          if text.indexOf('<:page>', pos) is pos
-            pos += 7
-            page_flag = true
-            break
-          line = line + text.charAt(pos)
-          pos++
-        lineList.push line
-        if page_flag
-          lineList.push('\f')
-        line = ''
-
-      page_pos = 0
-      line_pos = 0
-      while line_pos < lineList.length
-        @pageList[page_pos] = []
-        for i in @page_lines
-          if line_pos < lineList.length
-            break
-          if lineList[line_pos].charAt(0) is "\f"
-            line_pos++
-            if _i > 0
-              break
-          else
-            @pageList[page_pos].push lineList[line_pos++]
-        page_pos++
-      @process_stage = @PROCESS_STAGE.PUTTING
-      @page_index = 0
-      @putting_line = 0
-      @putting_pos = 0
-          
-    #process:(key)=>
-    update:(key)=>
-      switch @process_stage
-        when @PROCES_STAGE.PAGE_START
-          if key.getTrigger() is 0
-            @putting_line = 0
-            @putting_pos = 0
-            @process_stage = @PROCESS_STAGE.PUTTING
-        when @PROCESS_STAGE.PAGE_END
-          if key.getTrigger() is 0
-            if @page_index < @pageList.length - 1
-              @process_stage = @PROCESS_STAGE.PAGE_EXIT
-            else
-              @process_stage = @PROCESS_STAGE.MESSAGE_EXIT
-        when @PROCESS_STAGE.PAGE_EXIT
-          if key.getTrigger() isnt 0
-            @page_index++
-            @process_stage = @PROCESS_STAGE.PAGE_START
-        when @PROCESS_STAGE.MESSAGE_EXIT
-          if key.getTrigger() isnt 0
-            @process_stage = @PROCESS_STAGE.EXIT
-        when @PROCESS_STAGE.PUTTING
-          @putting_pos++
-          if @putting_pos >= @pageList[@page_index][@putting_line].length
-              if @putting_line is @pageList[@page_index].length - 1
-                @process_stage = @PROCESS_STAGE.PAGE_END
-              else
-                @putting_line++
-                @putting_pos = 0
-           if @process_stage is @PROCESS_STAGE.PUTTING and key.getTrigger() isnt 0
-             @process_stage = @PROCESS_STAGE.PAGE_END
-      @process_count += 1
-      @process_stage = @PROCESS_STAGE.EXIT
-    draw:(context)=>
-      if @visible is false
-        return
-      context.fillStyle = '#ffffff'
-      context.fillRect(@x, @y, @width, @height)
-      context.fillStyle = '#000000'
-      context.fillRect(@inner_x, @inner_y, @inner_width, @inner_height)
-      context.fillStyle = '#ffffff'
-      context.textBaseline = 'top'
-      context.font = @font
-      switch @process_stage
-        when @PROCESS_STAGE.PUTTING
-          for i in @putting_line
-            context.fillText(@pageList[@page_index][_i], \
-            @content_x, @content_y + _i * @line_height)
-          context.fillText( \
-          @pageList[@page_index][@putting_line].substring(0, @putting_pos), \
-          @content_x, @content_y + _i * @line_height)
-        when @PROCESS_STAGE.PAGE_END, \
-        @PROCESS_STAGE.PAGE_EXIT, \
-        @PROCESS_STAGE.MESSAGE_EXIT
-          for i in @pageList[@page_index]
-            context.fillText(@pageList[@pageList][_i], \
-            @content_x, @content_y + _i * @line_height)
-      context_center_x = @content_x + (@content_width / 2)
-      #if @process_stage is @PROCESS_STAGE.PAGE_EXIT and (@process_count  % 10 ) < 5
-      if @process_stage is @PROCESS_STAGE.PAGE_EXIT and \
-      (@process_count  % 10 ) < 5
-        context.beginPath()
-        context.moveTo(context_center_x - 6, @content_y + @content_height - 12)
-        context.lineTo(context_center_x + 6, @content_y + @content_height - 12)
-        context.lineTo(context_center_x , @content_y + @content_height)
-        context.closePath()
-        context.fillStyle = '#ffffff'
-        context.fill()
-      @setSize(@DEFAULT.WIDTH, @DEFAULT.HEIGHT)
-      @setPos(0, 0)
-
-
-
-
-
-
-      
-        
-
-
-
-
-
-
-
-
+  DEFAULT:{# {{{
+    SELECTED_COLOR:'blue'
+    SEL_MARKER_WIDTH:10
+    SEL_MARKER_HEIGHT:16
+  }# }}}
+  constructor:(lines, index)->
+    if lines?
+      @lines = []
+    else
+      @lines = lines
+    super(10, 10)
+    @content_width = @max(@lines)
+    @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
+    @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT.SEL_MARKER_WIDTH
+    @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
+    if index?
+      @index = 1
+    else
+      @index = index
+    @setLines(@lines)
+    @drawText()
+    @addEventListener 'touchend', (e)=>
+      @setIndex(@detectIndex(e))
+  max:(lines)=># {{{
+    max = 0
+    for i in lines
+      len = 0
+      for j in i
+        if @func.isZenkaku(j)
+          len += 2
+        else
+          len +=1
+      if len > max
+        max = len
+    return max# }}}
+  detectIndex:(e)=># {{{
+    x = e.x - @x
+    y = e.y - @y
+    if x  < (@DEFAULT.BORDER + @DEFAULT.PADDING) or  x > @width
+      return @index
+    if y  < (@DEFAULT.BORDER + @DEFAULT.PADDING) or  y > @height
+      return @index
+    index = Math.floor(y/@DEFAULT.LINE_HEIGHT) + 1
+    if 0 < index <= (@lines.length + 1)
+      return index
+    else
+      return @index# }}}
+  drawText:-># {{{
+    @clearText()
+    @ctx.fillStyle = @DEFAULT.FONT_COLOR
+    @ctx.font = @DEFAULT.FONT
+    x = @DEFAULT.BORDER+@DEFAULT.PADDING
+    y = @DEFAULT.BORDER+@DEFAULT.PADDING
+    for i, idx in @lines
+      @ctx.font = @DEFAULT.FONT
+      if (idx+1) is @Index
+        @ctx.fontStyle = @DEFAULT.SELECTED_COLOR
+        @drawMarker(x, y+idx*@DEFAULT.LINE_HEIGHT)
+      else
+        @ctx.fontStyle = @DEFAULT.FONT_COLOR
+      @ctx.fillText(i, x+@DEFAULT.SEL_MARKER_WIDTH, y+(idx+1)*@DEFAULT.LINE_HEIGHT)
+    @state = @STATE.PAGE_WAIT# }}}
+  drawMarker:(x, y)-># {{{
+    x1 = x + 2
+    x2 = x + (@DEFAULT.SEL_MARKER_WIDTH - 2*2)
+    y1 = y + 2
+    y2 = y + Math.floor(@DEFAULT.SEL_MARKER_HEIGHT/2)
+    y3 = y + @DEFAULT.SEL_MARKER_HEIGHT -2
+    @ctx.fillStyle = @DEFAULT.SELECTED_COLOR
+    @ctx.beginPath()
+    @ctx.moveTo(x1, y1)
+    @ctx.lineTo(x2, y2)
+    @ctx.lineTo(x1, y3)
+    @ctx.closePath()
+    @ctx.fill()# }}}
+  getIndex:=># {{{
+    return @index# }}}
+  setIndex:(idx)=>
+    if @index isnt idx
+      @index = idx
+      @drawText()
+      @state = @STATE.MESSAGE_EXIT

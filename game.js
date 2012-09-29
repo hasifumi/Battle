@@ -1,5 +1,5 @@
 (function() {
-  var BattleEngine, BattleScene, BattleTest, Charactor, UtilFunc, UtilWindow, UtilWindow_old,
+  var BattleEngine, BattleScene, BattleTest, Charactor, SelectDialog, UtilFunc, UtilWindow,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -79,7 +79,7 @@
     __extends(BattleScene, _super);
 
     function BattleScene() {
-      var lblAttack, uw1,
+      var lblAttack, lines, sd1, uw1,
         _this = this;
       BattleScene.__super__.constructor.call(this);
       this.game = enchant.Game.instance;
@@ -87,6 +87,11 @@
       uw1.x = 50;
       uw1.y = 100;
       this.addChild(uw1);
+      lines = ["aaaa", "bb", "ccc"];
+      sd1 = new SelectDialog(lines, 1);
+      sd1.x = 130;
+      sd1.y = 50;
+      this.addChild(sd1);
       this.bEngine = new BattleEngine(uw1);
       this.bEngine.addMember(this.game.player);
       this.bEngine.addMember(this.game.enemy);
@@ -467,234 +472,133 @@
 
   })(Sprite);
 
-  UtilWindow_old = (function() {
+  SelectDialog = (function(_super) {
 
-    UtilWindow_old.prototype.DEFAULT = {
-      BORDER_SIZE: 1,
-      CONTENT_PADDING: 2,
-      WIDTH: 224,
-      HEIGHT: 160,
-      FONT: "14px monospace",
-      LINE_HEIGHT: 18
+    __extends(SelectDialog, _super);
+
+    SelectDialog.prototype.DEFAULT = {
+      SELECTED_COLOR: 'blue',
+      SEL_MARKER_WIDTH: 10,
+      SEL_MARKER_HEIGHT: 16
     };
 
-    UtilWindow_old.prototype.PROCESS_STAGE = {
-      NONE: 0,
-      PUTTING: 1,
-      PAGE_WAIT: 2,
-      PAGE_START: 3,
-      PAGE_END: 4,
-      PAGE_EXIT: 5,
-      MESSAGE_EXIT: 6,
-      EXIT: 7
-    };
-
-    function UtilWindow_old(x, y, width, height) {
+    function SelectDialog(lines, index) {
+      this.setIndex = __bind(this.setIndex, this);
+      this.getIndex = __bind(this.getIndex, this);
+      this.detectIndex = __bind(this.detectIndex, this);
+      this.max = __bind(this.max, this);
       var _this = this;
-      this.x = x;
-      this.y = y;
-      this.width = width != null ? width : this.DEFAULT.WIDTH;
-      this.height = height != null ? height : this.DEFAULT.HEIGHT;
-      this.border_size = this.DEFAULT.BORDER_SIZE;
-      this.inner_x = 0;
-      this.inner_y = 0;
-      this.inner_width = 0;
-      this.inner_height = 0;
-      this.content_padding = this.DEFAULT.CONTENT_PADDING;
-      this.content_x = 0;
-      this.content_y = 0;
-      this.content_width = 0;
-      this.content_height = 0;
-      this.page_line = 0;
-      this.fong = this.DEFAULT.FONT;
-      this.line_height = this.DEFAULT.LINE_HEIGHT;
-      this.pageList = [];
-      this.process_stage = 0;
-      this.process_count = 0;
-      this.page_index = 0;
-      this.putting_line = 0;
-      this.putting_pos = 0;
-      this.visible = false;
-      this.func = new UtilFunc();
-      ({
-        getX: function() {
-          return this.x;
-        },
-        getY: function() {
-          return this.y;
-        },
-        getWidth: function() {
-          return this.width;
-        },
-        getHeight: function() {
-          return this.height;
-        },
-        setSize: function(width, height) {
-          if (width < (this.border_size * 2) + (this.content_padding * 2) || height < (this.border_size * 2)(+(this.content_padding * 2))) {
-            return false;
-          }
-          this.width = width;
-          this.height = height;
-          this.inner_width = this.width - (this.border_size * 2);
-          this.inner_height = this.height - (this.border_size * 2);
-          this.content_width = this.inner_width - (this.content_padding * 2);
-          this.content_height = this.inner_height - (this.content_padding * 2);
-          return this.page_lines = Math.floor(this.content_height / this.line_height);
-        },
-        setPos: function(x, y) {
-          this.x = x;
-          this.y = y;
-          this.inner_x = x + this.border_size;
-          this.inner_y = y + this.border_size;
-          this.content_x = this.inner_x + this.content_padding;
-          return this.content_y = this.inner_y + this.content_padding;
-        },
-        show: function() {
-          return this.visible = true;
-        },
-        hide: function() {
-          return this.visible = false;
-        },
-        setText: function(text, context) {
-          var i, line, lineList, line_pos, page_flag, page_pos, pos, _i, _len, _ref;
-          _this.pageList = [];
-          line = '';
-          lineList = [];
-          pos = 0;
-          context.font = _this.font;
-          while (pos < text.length) {
-            page_flag = false;
-            while (pos < text.length && context.measureText(line + text.charAt(pos)).width < _this.content_width) {
-              if (text.indexOf('<:br>', pos) === pos) {
-                pos += 5;
-                break;
-              }
-              if (text.indexOf('<:page>', pos) === pos) {
-                pos += 7;
-                page_flag = true;
-                break;
-              }
-              line = line + text.charAt(pos);
-              pos++;
-            }
-            lineList.push(line);
-            if (page_flag) lineList.push('\f');
-            line = '';
-          }
-          page_pos = 0;
-          line_pos = 0;
-          while (line_pos < lineList.length) {
-            _this.pageList[page_pos] = [];
-            _ref = _this.page_lines;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              i = _ref[_i];
-              if (line_pos < lineList.length) break;
-              if (lineList[line_pos].charAt(0) === "\f") {
-                line_pos++;
-                if (_i > 0) break;
-              } else {
-                _this.pageList[page_pos].push(lineList[line_pos++]);
-              }
-            }
-            page_pos++;
-          }
-          _this.process_stage = _this.PROCESS_STAGE.PUTTING;
-          _this.page_index = 0;
-          _this.putting_line = 0;
-          return _this.putting_pos = 0;
-        },
-        update: function(key) {
-          switch (_this.process_stage) {
-            case _this.PROCES_STAGE.PAGE_START:
-              if (key.getTrigger() === 0) {
-                _this.putting_line = 0;
-                _this.putting_pos = 0;
-                _this.process_stage = _this.PROCESS_STAGE.PUTTING;
-              }
-              break;
-            case _this.PROCESS_STAGE.PAGE_END:
-              if (key.getTrigger() === 0) {
-                if (_this.page_index < _this.pageList.length - 1) {
-                  _this.process_stage = _this.PROCESS_STAGE.PAGE_EXIT;
-                } else {
-                  _this.process_stage = _this.PROCESS_STAGE.MESSAGE_EXIT;
-                }
-              }
-              break;
-            case _this.PROCESS_STAGE.PAGE_EXIT:
-              if (key.getTrigger() !== 0) {
-                _this.page_index++;
-                _this.process_stage = _this.PROCESS_STAGE.PAGE_START;
-              }
-              break;
-            case _this.PROCESS_STAGE.MESSAGE_EXIT:
-              if (key.getTrigger() !== 0) {
-                _this.process_stage = _this.PROCESS_STAGE.EXIT;
-              }
-              break;
-            case _this.PROCESS_STAGE.PUTTING:
-              _this.putting_pos++;
-              if (_this.putting_pos >= _this.pageList[_this.page_index][_this.putting_line].length) {
-                if (_this.putting_line === _this.pageList[_this.page_index].length - 1) {
-                  _this.process_stage = _this.PROCESS_STAGE.PAGE_END;
-                } else {
-                  _this.putting_line++;
-                  _this.putting_pos = 0;
-                }
-              }
-              if (_this.process_stage === _this.PROCESS_STAGE.PUTTING && key.getTrigger() !== 0) {
-                _this.process_stage = _this.PROCESS_STAGE.PAGE_END;
-              }
-          }
-          _this.process_count += 1;
-          return _this.process_stage = _this.PROCESS_STAGE.EXIT;
-        },
-        draw: function(context) {
-          var context_center_x, i, _i, _j, _len, _len2, _ref, _ref2;
-          if (_this.visible === false) return;
-          context.fillStyle = '#ffffff';
-          context.fillRect(_this.x, _this.y, _this.width, _this.height);
-          context.fillStyle = '#000000';
-          context.fillRect(_this.inner_x, _this.inner_y, _this.inner_width, _this.inner_height);
-          context.fillStyle = '#ffffff';
-          context.textBaseline = 'top';
-          context.font = _this.font;
-          switch (_this.process_stage) {
-            case _this.PROCESS_STAGE.PUTTING:
-              _ref = _this.putting_line;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                i = _ref[_i];
-                context.fillText(_this.pageList[_this.page_index][_i], _this.content_x, _this.content_y + _i * _this.line_height);
-              }
-              context.fillText(_this.pageList[_this.page_index][_this.putting_line].substring(0, _this.putting_pos), _this.content_x, _this.content_y + _i * _this.line_height);
-              break;
-            case _this.PROCESS_STAGE.PAGE_END:
-            case _this.PROCESS_STAGE.PAGE_EXIT:
-            case _this.PROCESS_STAGE.MESSAGE_EXIT:
-              _ref2 = _this.pageList[_this.page_index];
-              for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-                i = _ref2[_j];
-                context.fillText(_this.pageList[_this.pageList][_i], _this.content_x, _this.content_y + _i * _this.line_height);
-              }
-          }
-          context_center_x = _this.content_x + (_this.content_width / 2);
-          if (_this.process_stage === _this.PROCESS_STAGE.PAGE_EXIT && (_this.process_count % 10) < 5) {
-            context.beginPath();
-            context.moveTo(context_center_x - 6, _this.content_y + _this.content_height - 12);
-            context.lineTo(context_center_x + 6, _this.content_y + _this.content_height - 12);
-            context.lineTo(context_center_x, _this.content_y + _this.content_height);
-            context.closePath();
-            context.fillStyle = '#ffffff';
-            context.fill();
-          }
-          _this.setSize(_this.DEFAULT.WIDTH, _this.DEFAULT.HEIGHT);
-          return _this.setPos(0, 0);
-        }
+      if (lines != null) {
+        this.lines = [];
+      } else {
+        this.lines = lines;
+      }
+      SelectDialog.__super__.constructor.call(this, 10, 10);
+      this.content_width = this.max(this.lines);
+      this.content_height = this.lines.length * this.DEFAULT.LINE_HEIGHT;
+      this.width = this.content_width + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2 + this.DEFAULT.SEL_MARKER_WIDTH;
+      this.height = this.content_height + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2;
+      if (index != null) {
+        this.index = 1;
+      } else {
+        this.index = index;
+      }
+      this.setLines(this.lines);
+      this.drawText();
+      this.addEventListener('touchend', function(e) {
+        return _this.setIndex(_this.detectIndex(e));
       });
     }
 
-    return UtilWindow_old;
+    SelectDialog.prototype.max = function(lines) {
+      var i, j, len, max, _i, _j, _len, _len2;
+      max = 0;
+      for (_i = 0, _len = lines.length; _i < _len; _i++) {
+        i = lines[_i];
+        len = 0;
+        for (_j = 0, _len2 = i.length; _j < _len2; _j++) {
+          j = i[_j];
+          if (this.func.isZenkaku(j)) {
+            len += 2;
+          } else {
+            len += 1;
+          }
+        }
+        if (len > max) max = len;
+      }
+      return max;
+    };
 
-  })();
+    SelectDialog.prototype.detectIndex = function(e) {
+      var index, x, y;
+      x = e.x - this.x;
+      y = e.y - this.y;
+      if (x < (this.DEFAULT.BORDER + this.DEFAULT.PADDING) || x > this.width) {
+        return this.index;
+      }
+      if (y < (this.DEFAULT.BORDER + this.DEFAULT.PADDING) || y > this.height) {
+        return this.index;
+      }
+      index = Math.floor(y / this.DEFAULT.LINE_HEIGHT) + 1;
+      if ((0 < index && index <= (this.lines.length + 1))) {
+        return index;
+      } else {
+        return this.index;
+      }
+    };
+
+    SelectDialog.prototype.drawText = function() {
+      var i, idx, x, y, _len, _ref;
+      this.clearText();
+      this.ctx.fillStyle = this.DEFAULT.FONT_COLOR;
+      this.ctx.font = this.DEFAULT.FONT;
+      x = this.DEFAULT.BORDER + this.DEFAULT.PADDING;
+      y = this.DEFAULT.BORDER + this.DEFAULT.PADDING;
+      _ref = this.lines;
+      for (idx = 0, _len = _ref.length; idx < _len; idx++) {
+        i = _ref[idx];
+        this.ctx.font = this.DEFAULT.FONT;
+        if ((idx + 1) === this.Index) {
+          this.ctx.fontStyle = this.DEFAULT.SELECTED_COLOR;
+          this.drawMarker(x, y + idx * this.DEFAULT.LINE_HEIGHT);
+        } else {
+          this.ctx.fontStyle = this.DEFAULT.FONT_COLOR;
+        }
+        this.ctx.fillText(i, x + this.DEFAULT.SEL_MARKER_WIDTH, y + (idx + 1) * this.DEFAULT.LINE_HEIGHT);
+      }
+      return this.state = this.STATE.PAGE_WAIT;
+    };
+
+    SelectDialog.prototype.drawMarker = function(x, y) {
+      var x1, x2, y1, y2, y3;
+      x1 = x + 2;
+      x2 = x + (this.DEFAULT.SEL_MARKER_WIDTH - 2 * 2);
+      y1 = y + 2;
+      y2 = y + Math.floor(this.DEFAULT.SEL_MARKER_HEIGHT / 2);
+      y3 = y + this.DEFAULT.SEL_MARKER_HEIGHT(-2);
+      this.ctx.fillStyle = this.DEFAULT.SELECTED_COLOR;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x1, y1);
+      this.ctx.lineTo(x2, y2);
+      this.ctx.lineTo(x1, y3);
+      this.ctx.closePath();
+      return this.ctx.fill();
+    };
+
+    SelectDialog.prototype.getIndex = function() {
+      return this.index;
+    };
+
+    SelectDialog.prototype.setIndex = function(idx) {
+      if (this.index !== idx) {
+        this.index = idx;
+        this.drawText();
+        return this.state = this.STATE.MESSAGE_EXIT;
+      }
+    };
+
+    return SelectDialog;
+
+  })(UtilWindow);
 
 }).call(this);

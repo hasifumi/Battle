@@ -12,6 +12,12 @@ class BattleScene extends Scene
     #uw1.setLines(lines)
     #uw1.drawText()
 
+    lines = ["aaaa", "bb", "ccc"]
+    sd1 = new SelectDialog(lines, 1)
+    sd1.x = 130
+    sd1.y = 50
+    @addChild sd1
+
     @bEngine = new BattleEngine(uw1)
     @bEngine.addMember(@game.player)
     @bEngine.addMember(@game.enemy)
