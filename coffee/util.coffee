@@ -249,7 +249,6 @@ class SelectDialog extends UtilWindow
       @lines = []
     wk_sur = new Surface(10, 10)
     @wk_ctx = wk_sur.context
-    #@content_width = @max(@lines)*14
     @content_width = @max(@lines) + @DEFAULT.PADDING
     @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
     @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
@@ -258,7 +257,7 @@ class SelectDialog extends UtilWindow
     if index?
       @index = index
     else
-      @index = 1
+      @index = 0
     @setLines(@lines)
     @drawText()
     @addEventListener 'touchend', (e)=>
@@ -268,25 +267,19 @@ class SelectDialog extends UtilWindow
     for i in lines
       @wk_ctx.font = @DEFAULT.FONT
       len = @wk_ctx.measureText(i).width
-      #len = 0
-      #for j in i
-      #  if @func.isZenkaku(j)
-      #    len += 2
-      #  else
-      #    len +=1
       if len > max
         max = len
     return max# }}}
   detectIndex:(e)=># {{{
     x = e.x - @x
     y = e.y - @y
-    console.log "e.y:"+Math.floor(e.y)+", y:"+Math.floor(y)+", y/@DEFAULT.LINE_HEIGHT:"+Math.floor(y/@DEFAULT.LINE_HEIGHT)
+    #console.log "e.y:"+Math.floor(e.y)+", y:"+Math.floor(y)+", y/@DEFAULT.LINE_HEIGHT:"+Math.floor(y/@DEFAULT.LINE_HEIGHT)
     if x  < (@DEFAULT.BORDER + @DEFAULT.PADDING) or  x > @width
       return @index
     if y  < (@DEFAULT.BORDER + @DEFAULT.PADDING) or  y > @height
       return @index
-    index = Math.floor((y - @DEFAULT.BORDER - @DEFAULT.PADDING)/@DEFAULT.LINE_HEIGHT) + 1
-    if 0 < index <= (@lines.length + 1)
+    index = Math.floor((y - @DEFAULT.BORDER - @DEFAULT.PADDING)/@DEFAULT.LINE_HEIGHT)
+    if 0 <= index < (@lines.length)
       return index
     else
       return @index# }}}
@@ -298,7 +291,7 @@ class SelectDialog extends UtilWindow
     y = @DEFAULT.BORDER+@DEFAULT.PADDING
     for i, idx in @lines
       @ctx.font = @DEFAULT.FONT
-      if (idx+1) is @index
+      if idx is @index
         @ctx.fillStyle = @DEFAULT1.SELECTED_COLOR
         @drawMarker(x, y+idx*@DEFAULT.LINE_HEIGHT)
       else
@@ -325,56 +318,3 @@ class SelectDialog extends UtilWindow
       @index = idx
       @drawText()
       @state = @STATE.MESSAGE_EXIT
-      
-class RoundFrame extends Sprite
-  DEFAULT:{# {{{
-    BACKGROUND_COLOR:'black'
-    LINE_COLOR:'orange'
-    LINE_WIDTH:2
-    BORDER:2
-    RADIUS:2
-    FONT_COLOR:'white'
-    FONT:'14px HG丸ｺﾞｼｯｸM-PRO'
-    PADDING:3
-    LINE_HEIGHT:16
-    OPACITY:0.6
-    PAGE_MARKER_HEIGHT:10
-    PAGE_MARKER_WIDTH:20
-  }# }}}
-  constructor:(w, h)->
-    @resetSize(w, h)
-  resetSize:(w, h)=># {{{
-    @width = w
-    @height = h
-    @sur = new Surface(w, h)
-    @ctx = @sur.context
-    @image = @sur
-    @opacity = @DEFAULT.OPACITY
-    @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
-    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
-    @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)# }}}
-  clearText:(method)-># {{{
-    @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
-    rad = @DEFAULT.RADIUS
-    @ctx.beginPath()
-    @ctx.moveTo(rad, 0)
-    @ctx.lineTo(@width - rad, 0)
-    @ctx.arc(@width - rad, 0 + rad, rad, Math.PI*1.5, 0, false)
-    @ctx.lineTo(@width, @height - rad)
-    @ctx.arc(@width - rad, @height - rad, rad, 0, Math.PI*0.5, false)
-    @ctx.lineTo(rad, @height)
-    @ctx.arc(rad, @height - rad, rad, Math.PI*0.5, Math.PI, false)
-    @ctx.lineTo(0, @height)
-    @ctx.arc(0, rad, rad, Math.PI, Math.PI*1.5, false)
-    @ctx.closePath()
-    switch method
-      when "fill"
-        @ctx.fill()
-      when "stroke"
-        @ctx.stroke()
-    @ctx.fillRect(0, 0, @width, @height)
-    @ctx.strokeStyle = @DEFAULT.LINE_COLOR
-    @ctx.lineWidth = @DEFAULT.LINE_WIDTH
-    @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
-    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)# }}}
-    
