@@ -97,15 +97,16 @@ class UtilWindow extends Sprite
   }# }}}
   constructor:(w, h)-># {{{
     super(w, h)
-    @width = w
-    @height = h
-    @sur = new Surface(w, h)
-    @ctx = @sur.context
-    @image = @sur
-    @opacity = @DEFAULT.OPACITY
-    @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
-    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
-    @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
+    #@width = w
+    #@height = h
+    #@sur = new Surface(w, h)
+    #@ctx = @sur.context
+    #@image = @sur
+    #@opacity = @DEFAULT.OPACITY
+    #@content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
+    #@content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
+    #@content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
+    @resetSize(w, h)
     @state = @STATE.NONE
     @func = new UtilFunc()
 
@@ -118,7 +119,18 @@ class UtilWindow extends Sprite
     @clearText()
     @addEventListener 'touchend', =>
       @onClick()# }}}
+  resetSize:(w, h)=># {{{
+    @width = w
+    @height = h
+    @sur = new Surface(w, h)
+    @ctx = @sur.context
+    @image = @sur
+    @opacity = @DEFAULT.OPACITY
+    @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
+    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
+    @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)# }}}
   clearText:-># {{{
+    console.log "clearText called width:"+@width+", height:"+@height
     @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
     @ctx.fillRect(0, 0, @width, @height)
     @ctx.strokeStyle = @DEFAULT.LINE_COLOR
@@ -226,6 +238,7 @@ class SelectDialog extends UtilWindow
     @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
     @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
     @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
+    @resetSize(@width, @height)
     if index?
       @index = index
     else
