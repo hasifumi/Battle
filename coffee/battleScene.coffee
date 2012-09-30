@@ -12,7 +12,7 @@ class BattleScene extends Scene
     #uw1.setLines(lines)
     #uw1.drawText()
 
-    lines = ["aaaa", "bb", "ccc"]
+    lines = ["aaaa", "bb", "ccc", "ddddddd"]
     sd1 = new SelectDialog(lines, 1)
     sd1.x = 50
     sd1.y = 200

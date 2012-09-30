@@ -88,7 +88,7 @@
       uw1.x = 50;
       uw1.y = 100;
       this.addChild(uw1);
-      lines = ["aaaa", "bb", "ccc"];
+      lines = ["aaaa", "bb", "ccc", "ddddddd"];
       sd1 = new SelectDialog(lines, 1);
       sd1.x = 50;
       sd1.y = 200;
@@ -511,7 +511,7 @@
     __extends(SelectDialog, _super);
 
     SelectDialog.prototype.DEFAULT1 = {
-      SELECTED_COLOR: 'blue',
+      SELECTED_COLOR: 'yellow',
       SEL_MARKER_WIDTH: 10,
       SEL_MARKER_HEIGHT: 16
     };
@@ -520,6 +520,10 @@
       this.setIndex = __bind(this.setIndex, this);
 
       this.getIndex = __bind(this.getIndex, this);
+
+      this.drawMarker = __bind(this.drawMarker, this);
+
+      this.drawText = __bind(this.drawText, this);
 
       this.detectIndex = __bind(this.detectIndex, this);
 
@@ -599,11 +603,11 @@
       for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
         i = _ref[idx];
         this.ctx.font = this.DEFAULT.FONT;
-        if ((idx + 1) === this.Index) {
-          this.ctx.fontStyle = this.DEFAULT1.SELECTED_COLOR;
+        if ((idx + 1) === this.index) {
+          this.ctx.fillStyle = this.DEFAULT1.SELECTED_COLOR;
           this.drawMarker(x, y + idx * this.DEFAULT.LINE_HEIGHT);
         } else {
-          this.ctx.fontStyle = this.DEFAULT.FONT_COLOR;
+          this.ctx.fillStyle = this.DEFAULT.FONT_COLOR;
         }
         this.ctx.fillText(i, x + this.DEFAULT1.SEL_MARKER_WIDTH, y + (idx + 1) * this.DEFAULT.LINE_HEIGHT);
       }
@@ -613,11 +617,11 @@
     SelectDialog.prototype.drawMarker = function(x, y) {
       var x1, x2, y1, y2, y3;
       x1 = x + 2;
-      x2 = x + (this.DEFAULT.SEL_MARKER_WIDTH - 2 * 2);
+      x2 = x + (this.DEFAULT1.SEL_MARKER_WIDTH - 2 * 2);
       y1 = y + 2;
-      y2 = y + Math.floor(this.DEFAULT.SEL_MARKER_HEIGHT / 2);
-      y3 = y + this.DEFAULT.SEL_MARKER_HEIGHT(-2);
-      this.ctx.fillStyle = this.DEFAULT.SELECTED_COLOR;
+      y2 = y + Math.floor(this.DEFAULT1.SEL_MARKER_HEIGHT / 2);
+      y3 = y + this.DEFAULT1.SEL_MARKER_HEIGHT - 2;
+      this.ctx.fillStyle = this.DEFAULT1.SELECTED_COLOR;
       this.ctx.beginPath();
       this.ctx.moveTo(x1, y1);
       this.ctx.lineTo(x2, y2);

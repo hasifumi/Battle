@@ -224,7 +224,7 @@ class UtilWindow extends Sprite
 
 class SelectDialog extends UtilWindow
   DEFAULT1:{# {{{
-    SELECTED_COLOR:'blue'
+    SELECTED_COLOR:'yellow'
     SEL_MARKER_WIDTH:10
     SEL_MARKER_HEIGHT:16
   }# }}}
@@ -271,7 +271,7 @@ class SelectDialog extends UtilWindow
       return index
     else
       return @index# }}}
-  drawText:-># {{{
+  drawText:=># {{{
     @clearText()
     @ctx.fillStyle = @DEFAULT.FONT_COLOR
     @ctx.font = @DEFAULT.FONT
@@ -279,20 +279,20 @@ class SelectDialog extends UtilWindow
     y = @DEFAULT.BORDER+@DEFAULT.PADDING
     for i, idx in @lines
       @ctx.font = @DEFAULT.FONT
-      if (idx+1) is @Index
-        @ctx.fontStyle = @DEFAULT1.SELECTED_COLOR
+      if (idx+1) is @index
+        @ctx.fillStyle = @DEFAULT1.SELECTED_COLOR
         @drawMarker(x, y+idx*@DEFAULT.LINE_HEIGHT)
       else
-        @ctx.fontStyle = @DEFAULT.FONT_COLOR
+        @ctx.fillStyle = @DEFAULT.FONT_COLOR
       @ctx.fillText(i, x+@DEFAULT1.SEL_MARKER_WIDTH, y+(idx+1)*@DEFAULT.LINE_HEIGHT)
     @state = @STATE.PAGE_WAIT# }}}
-  drawMarker:(x, y)-># {{{
+  drawMarker:(x, y)=># {{{
     x1 = x + 2
-    x2 = x + (@DEFAULT.SEL_MARKER_WIDTH - 2*2)
+    x2 = x + (@DEFAULT1.SEL_MARKER_WIDTH - 2*2)
     y1 = y + 2
-    y2 = y + Math.floor(@DEFAULT.SEL_MARKER_HEIGHT/2)
-    y3 = y + @DEFAULT.SEL_MARKER_HEIGHT -2
-    @ctx.fillStyle = @DEFAULT.SELECTED_COLOR
+    y2 = y + Math.floor(@DEFAULT1.SEL_MARKER_HEIGHT/2)
+    y3 = y + @DEFAULT1.SEL_MARKER_HEIGHT - 2
+    @ctx.fillStyle = @DEFAULT1.SELECTED_COLOR
     @ctx.beginPath()
     @ctx.moveTo(x1, y1)
     @ctx.lineTo(x2, y2)
