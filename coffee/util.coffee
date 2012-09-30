@@ -71,11 +71,31 @@ class UtilFunc# {{{
         return true
       else
         return false# }}}
+  roundRect:(ctx, method, w, h, rad)-># {{{
+    if !ctx? then return
+    if !method? then return
+    ctx.beginPath()
+    ctx.moveTo(rad, 0)
+    ctx.lineTo(w - rad, 0)
+    ctx.arc(w - rad, 0 + rad, rad, Math.PI*1.5, 0, false)
+    ctx.lineTo(w, h - rad)
+    ctx.arc(w - rad, h - rad, rad, 0, Math.PI*0.5, false)
+    ctx.lineTo(rad, h)
+    ctx.arc(rad, h - rad, rad, Math.PI*0.5, Math.PI, false)
+    ctx.lineTo(0, h)
+    ctx.arc(0, rad, rad, Math.PI, Math.PI*1.5, false)
+    ctx.closePath()
+    switch method
+      when "fill"
+        ctx.fill()
+      when "stroke"
+        ctx.stroke()# }}}
 # }}}
 class UtilWindow extends Sprite
   DEFAULT:{# {{{
     BACKGROUND_COLOR:'black'
     LINE_COLOR:'orange'
+    LINE_WIDTH:2
     BORDER:2
     FONT_COLOR:'white'
     FONT:'14px HG丸ｺﾞｼｯｸM-PRO'
@@ -97,25 +117,14 @@ class UtilWindow extends Sprite
   }# }}}
   constructor:(w, h)-># {{{
     super(w, h)
-    #@width = w
-    #@height = h
-    #@sur = new Surface(w, h)
-    #@ctx = @sur.context
-    #@image = @sur
-    #@opacity = @DEFAULT.OPACITY
-    #@content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
-    #@content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
-    #@content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)
     @resetSize(w, h)
     @state = @STATE.NONE
     @func = new UtilFunc()
-
     @line_count = 0
     @current_line = 0
     @lines = []
     @skip_count = 0
     @br_flag = 0
-
     @clearText()
     @addEventListener 'touchend', =>
       @onClick()# }}}
@@ -130,10 +139,10 @@ class UtilWindow extends Sprite
     @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)# }}}
   clearText:-># {{{
-    console.log "clearText called width:"+@width+", height:"+@height
     @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
     @ctx.fillRect(0, 0, @width, @height)
     @ctx.strokeStyle = @DEFAULT.LINE_COLOR
+    @ctx.lineWidth = @DEFAULT.LINE_WIDTH
     @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
     @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)# }}}
   addText:(text)-># {{{
@@ -306,3 +315,56 @@ class SelectDialog extends UtilWindow
       @index = idx
       @drawText()
       @state = @STATE.MESSAGE_EXIT
+      
+class RoundFrame extends Sprite
+  DEFAULT:{# {{{
+    BACKGROUND_COLOR:'black'
+    LINE_COLOR:'orange'
+    LINE_WIDTH:2
+    BORDER:2
+    RADIUS:2
+    FONT_COLOR:'white'
+    FONT:'14px HG丸ｺﾞｼｯｸM-PRO'
+    PADDING:3
+    LINE_HEIGHT:16
+    OPACITY:0.6
+    PAGE_MARKER_HEIGHT:10
+    PAGE_MARKER_WIDTH:20
+  }# }}}
+  constructor:(w, h)->
+    @resetSize(w, h)
+  resetSize:(w, h)=># {{{
+    @width = w
+    @height = h
+    @sur = new Surface(w, h)
+    @ctx = @sur.context
+    @image = @sur
+    @opacity = @DEFAULT.OPACITY
+    @content_width = @width - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2
+    @content_height = @height - @DEFAULT.BORDER*2 - @DEFAULT.PADDING*2 - @DEFAULT.PAGE_MARKER_HEIGHT
+    @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)# }}}
+  clearText:(method)-># {{{
+    @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
+    rad = @DEFAULT.RADIUS
+    @ctx.beginPath()
+    @ctx.moveTo(rad, 0)
+    @ctx.lineTo(@width - rad, 0)
+    @ctx.arc(@width - rad, 0 + rad, rad, Math.PI*1.5, 0, false)
+    @ctx.lineTo(@width, @height - rad)
+    @ctx.arc(@width - rad, @height - rad, rad, 0, Math.PI*0.5, false)
+    @ctx.lineTo(rad, @height)
+    @ctx.arc(rad, @height - rad, rad, Math.PI*0.5, Math.PI, false)
+    @ctx.lineTo(0, @height)
+    @ctx.arc(0, rad, rad, Math.PI, Math.PI*1.5, false)
+    @ctx.closePath()
+    switch method
+      when "fill"
+        @ctx.fill()
+      when "stroke"
+        @ctx.stroke()
+    @ctx.fillRect(0, 0, @width, @height)
+    @ctx.strokeStyle = @DEFAULT.LINE_COLOR
+    @ctx.lineWidth = @DEFAULT.LINE_WIDTH
+    @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
+    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)# }}}
+    

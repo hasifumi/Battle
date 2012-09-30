@@ -315,6 +315,7 @@
     UtilWindow.prototype.DEFAULT = {
       BACKGROUND_COLOR: 'black',
       LINE_COLOR: 'orange',
+      LINE_WIDTH: 2,
       BORDER: 2,
       FONT_COLOR: 'white',
       FONT: '14px HG丸ｺﾞｼｯｸM-PRO',
@@ -376,6 +377,7 @@
       this.ctx.fillStyle = this.DEFAULT.BACKGROUND_COLOR;
       this.ctx.fillRect(0, 0, this.width, this.height);
       this.ctx.strokeStyle = this.DEFAULT.LINE_COLOR;
+      this.ctx.lineWidth = this.DEFAULT.LINE_WIDTH;
       return this.ctx.strokeRect(this.DEFAULT.BORDER, this.DEFAULT.BORDER, this.width - this.DEFAULT.BORDER * 2, this.height - this.DEFAULT.BORDER * 2);
     };
 
