@@ -12,7 +12,7 @@ class BattleScene extends Scene
     #uw1.setLines(lines)
     #uw1.drawText()
 
-    lines = ["aaaa", "bb", "ccc", "ddddddd"]
+    lines = ["ああああ", "いい", "ううう", "ええええええええ"]
     sd1 = new SelectDialog(lines, 1)
     sd1.x = 50
     sd1.y = 200
@@ -32,4 +32,17 @@ class BattleScene extends Scene
     @addEventListener 'enterframe', ->
       @bEngine.update()
     @addChild lblAttack
+
+    func = new UtilFunc()
+    sp = new Sprite(120, 20)
+    sur = new Surface(120, 20)
+    ctx = sur.context
+    ctx.fillStyle = "orange"
+    func.roundRect(ctx, "fill", 0, 0, 120, 20, 5)
+    #ctx.strokeStyle = "orange"
+    #func.roundRect(ctx, "stroke", 120, 20, 2)
+    sp.image= sur
+    sp.x = 50
+    sp.y = 280
+    @addChild sp
 

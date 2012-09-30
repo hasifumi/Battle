@@ -71,19 +71,19 @@ class UtilFunc# {{{
         return true
       else
         return false# }}}
-  roundRect:(ctx, method, w, h, rad)-># {{{
+  roundRect:(ctx, method, x, y, w, h, rad)-># {{{
     if !ctx? then return
     if !method? then return
     ctx.beginPath()
-    ctx.moveTo(rad, 0)
-    ctx.lineTo(w - rad, 0)
-    ctx.arc(w - rad, 0 + rad, rad, Math.PI*1.5, 0, false)
-    ctx.lineTo(w, h - rad)
-    ctx.arc(w - rad, h - rad, rad, 0, Math.PI*0.5, false)
-    ctx.lineTo(rad, h)
-    ctx.arc(rad, h - rad, rad, Math.PI*0.5, Math.PI, false)
-    ctx.lineTo(0, h)
-    ctx.arc(0, rad, rad, Math.PI, Math.PI*1.5, false)
+    ctx.moveTo(x + rad, y + 0)
+    ctx.lineTo(x + w - rad, y + 0)
+    ctx.arc(x + w - rad, y + 0 + rad, rad, Math.PI*1.5, 0, false)
+    ctx.lineTo(x + w, y + h - rad)
+    ctx.arc(x + w - rad, y + h - rad, rad, 0, Math.PI*0.5, false)
+    ctx.lineTo(x + rad, y + h)
+    ctx.arc(x + rad, y + h - rad, rad, Math.PI*0.5, Math.PI, false)
+    ctx.lineTo(x + 0, y + rad)
+    ctx.arc(x + rad, y + rad, rad, Math.PI, Math.PI*1.5, false)
     ctx.closePath()
     switch method
       when "fill"
@@ -100,6 +100,7 @@ class UtilWindow extends Sprite
     FONT_COLOR:'white'
     FONT:'14px HG丸ｺﾞｼｯｸM-PRO'
     PADDING:3
+    RADIUS:8
     LINE_HEIGHT:16
     OPACITY:0.6
     PAGE_MARKER_HEIGHT:10
@@ -140,11 +141,14 @@ class UtilWindow extends Sprite
     @content_lines = Math.floor(@content_height/@DEFAULT.LINE_HEIGHT)# }}}
   clearText:-># {{{
     @ctx.fillStyle = @DEFAULT.BACKGROUND_COLOR
-    @ctx.fillRect(0, 0, @width, @height)
+    #@ctx.fillRect(0, 0, @width, @height)
+    @func.roundRect(@ctx, "fill", 0, 0, @width, @height, @DEFAULT.RADIUS)
     @ctx.strokeStyle = @DEFAULT.LINE_COLOR
     @ctx.lineWidth = @DEFAULT.LINE_WIDTH
-    @ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
-    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)# }}}
+    #@ctx.strokeRect(@DEFAULT.BORDER, @DEFAULT.BORDER, \
+    #@width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2)
+    @func.roundRect(@ctx, "stroke", @DEFAULT.BORDER, @DEFAULT.BORDER, \
+    @width - @DEFAULT.BORDER*2, @height - @DEFAULT.BORDER*2, @DEFAULT.RADIUS)# }}}
   addText:(text)-># {{{
     chars = ""
     line = ""
@@ -243,7 +247,10 @@ class SelectDialog extends UtilWindow
       @lines = lines
     else
       @lines = []
-    @content_width = @max(@lines)*14
+    wk_sur = new Surface(10, 10)
+    @wk_ctx = wk_sur.context
+    #@content_width = @max(@lines)*14
+    @content_width = @max(@lines) + @DEFAULT.PADDING
     @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
     @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
     @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
@@ -259,23 +266,26 @@ class SelectDialog extends UtilWindow
   max:(lines)=># {{{
     max = 0
     for i in lines
-      len = 0
-      for j in i
-        if @func.isZenkaku(j)
-          len += 2
-        else
-          len +=1
+      @wk_ctx.font = @DEFAULT.FONT
+      len = @wk_ctx.measureText(i).width
+      #len = 0
+      #for j in i
+      #  if @func.isZenkaku(j)
+      #    len += 2
+      #  else
+      #    len +=1
       if len > max
         max = len
     return max# }}}
   detectIndex:(e)=># {{{
     x = e.x - @x
     y = e.y - @y
+    console.log "e.y:"+Math.floor(e.y)+", y:"+Math.floor(y)+", y/@DEFAULT.LINE_HEIGHT:"+Math.floor(y/@DEFAULT.LINE_HEIGHT)
     if x  < (@DEFAULT.BORDER + @DEFAULT.PADDING) or  x > @width
       return @index
     if y  < (@DEFAULT.BORDER + @DEFAULT.PADDING) or  y > @height
       return @index
-    index = Math.floor(y/@DEFAULT.LINE_HEIGHT) + 1
+    index = Math.floor((y - @DEFAULT.BORDER - @DEFAULT.PADDING)/@DEFAULT.LINE_HEIGHT) + 1
     if 0 < index <= (@lines.length + 1)
       return index
     else
@@ -293,7 +303,7 @@ class SelectDialog extends UtilWindow
         @drawMarker(x, y+idx*@DEFAULT.LINE_HEIGHT)
       else
         @ctx.fillStyle = @DEFAULT.FONT_COLOR
-      @ctx.fillText(i, x+@DEFAULT1.SEL_MARKER_WIDTH, y+(idx+1)*@DEFAULT.LINE_HEIGHT)
+      @ctx.fillText(i, x+@DEFAULT1.SEL_MARKER_WIDTH, y+(idx+1)*@DEFAULT.LINE_HEIGHT - 2)
     @state = @STATE.PAGE_WAIT# }}}
   drawMarker:(x, y)=># {{{
     x1 = x + 2
