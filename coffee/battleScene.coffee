@@ -33,3 +33,18 @@ class BattleScene extends Scene
       @bEngine.update()
     @addChild lblAttack
 
+    lblChange = new Label("Change")
+    lblChange.x = 50
+    lblChange.y = 80
+    lblChange.addEventListener 'touchend', =>
+      if sd1.lines.length is 2
+        lines = ["ああああ", "いい", "ううう", "ええええええええ"]
+      else
+        lines = ["aaa", "bbbbbb"]
+      sd1.lines = lines
+      sd1.reSize()
+      sd1.index = 0
+      sd1.resetSize(sd1.width, sd1.height)
+      sd1.drawText()
+    @addChild lblChange
+

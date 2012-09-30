@@ -80,7 +80,7 @@
     __extends(BattleScene, _super);
 
     function BattleScene() {
-      var lblAttack, lines, sd1, uw1,
+      var lblAttack, lblChange, lines, sd1, uw1,
         _this = this;
       BattleScene.__super__.constructor.call(this);
       this.game = enchant.Game.instance;
@@ -109,6 +109,22 @@
         return this.bEngine.update();
       });
       this.addChild(lblAttack);
+      lblChange = new Label("Change");
+      lblChange.x = 50;
+      lblChange.y = 80;
+      lblChange.addEventListener('touchend', function() {
+        if (sd1.lines.length === 2) {
+          lines = ["ああああ", "いい", "ううう", "ええええええええ"];
+        } else {
+          lines = ["aaa", "bbbbbb"];
+        }
+        sd1.lines = lines;
+        sd1.reSize();
+        sd1.index = 0;
+        sd1.resetSize(sd1.width, sd1.height);
+        return sd1.drawText();
+      });
+      this.addChild(lblChange);
     }
 
     return BattleScene;
@@ -557,6 +573,8 @@
 
       this.max = __bind(this.max, this);
 
+      this.reSize = __bind(this.reSize, this);
+
       var wk_sur,
         _this = this;
       SelectDialog.__super__.constructor.call(this, 10, 10);
@@ -567,10 +585,7 @@
       }
       wk_sur = new Surface(10, 10);
       this.wk_ctx = wk_sur.context;
-      this.content_width = this.max(this.lines) + this.DEFAULT.PADDING;
-      this.content_height = this.lines.length * this.DEFAULT.LINE_HEIGHT;
-      this.width = this.content_width + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2 + this.DEFAULT1.SEL_MARKER_WIDTH;
-      this.height = this.content_height + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2;
+      this.reSize();
       this.resetSize(this.width, this.height);
       if (index != null) {
         this.index = index;
@@ -583,6 +598,13 @@
         return _this.setIndex(_this.detectIndex(e));
       });
     }
+
+    SelectDialog.prototype.reSize = function() {
+      this.content_width = this.max(this.lines) + this.DEFAULT.PADDING;
+      this.content_height = this.lines.length * this.DEFAULT.LINE_HEIGHT;
+      this.width = this.content_width + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2 + this.DEFAULT1.SEL_MARKER_WIDTH;
+      return this.height = this.content_height + this.DEFAULT.BORDER * 2 + this.DEFAULT.PADDING * 2;
+    };
 
     SelectDialog.prototype.max = function(lines) {
       var i, len, max, _i, _len;

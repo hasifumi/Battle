@@ -249,10 +249,11 @@ class SelectDialog extends UtilWindow
       @lines = []
     wk_sur = new Surface(10, 10)
     @wk_ctx = wk_sur.context
-    @content_width = @max(@lines) + @DEFAULT.PADDING
-    @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
-    @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
-    @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
+    #@content_width = @max(@lines) + @DEFAULT.PADDING
+    #@content_height = @lines.length * @DEFAULT.LINE_HEIGHT
+    #@width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
+    #@height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
+    @reSize()
     @resetSize(@width, @height)
     if index?
       @index = index
@@ -262,6 +263,11 @@ class SelectDialog extends UtilWindow
     @drawText()
     @addEventListener 'touchend', (e)=>
       @setIndex(@detectIndex(e))# }}}
+  reSize:()=>
+    @content_width = @max(@lines) + @DEFAULT.PADDING
+    @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
+    @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
+    @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
   max:(lines)=># {{{
     max = 0
     for i in lines
