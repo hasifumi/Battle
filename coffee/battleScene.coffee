@@ -15,7 +15,7 @@ class BattleScene extends Scene
     lines = ["ああああ", "いい", "ううう", "ええええええええ"]
     sd1 = new SelectDialog(lines, 0)
     sd1.x = 50
-    sd1.y = 200
+    sd1.y = 100
     @addChild sd1
 
     @bEngine = new BattleEngine(uw1)
@@ -35,7 +35,7 @@ class BattleScene extends Scene
 
     lblChange = new Label("Change")
     lblChange.x = 50
-    lblChange.y = 80
+    lblChange.y = 60
     lblChange.addEventListener 'touchend', =>
       if sd1.lines.length is 2
         lines = ["ああああ", "いい", "ううう", "ええええええええ"]
@@ -47,4 +47,20 @@ class BattleScene extends Scene
       sd1.resetSize(sd1.width, sd1.height)
       sd1.drawText()
     @addChild lblChange
+
+    lblVisible = new Label("Visible")
+    lblVisible.x = 50
+    lblVisible.y = 70
+    lblVisible.addEventListener 'touchend', =>
+      #sd1.visible = true
+      sd1.setVisible(true)
+    @addChild lblVisible
+
+    lblInvisible = new Label("Invisible")
+    lblInvisible.x = 50
+    lblInvisible.y = 80
+    lblInvisible.addEventListener 'touchend', =>
+      #sd1.visible = false
+      sd1.setVisible(false)
+    @addChild lblInvisible
 

@@ -234,6 +234,8 @@ class UtilWindow extends Sprite
   onClick:-># {{{
     if @state is @STATE.PAGE_END
       @drawText()# }}}
+  setVisible:(value)=># {{{
+    @.visible = value# }}}
 
 class SelectDialog extends UtilWindow
   DEFAULT1:{# {{{
