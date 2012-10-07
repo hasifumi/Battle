@@ -9,11 +9,11 @@ class BattleTest extends Game
     super(@config.WIDTH, @config.HEIGHT)
     @fps = @config.FPS
     @onload = ->
-      @player = new Charactor({name:"プレイヤー１", maxHp:100})
+      @player = new Charactor({name:"プレイヤー１", maxHp:100, side:"party"})
       console.log "#{@player.name} create"
-      @enemy = new Charactor({name:"敵１", maxHp:50})
+      @enemy = new Charactor({name:"敵１", maxHp:50, side:"enemy"})
       console.log "#{@enemy.name} create"
-      @enemy2 = new Charactor({name:"敵２", maxHp:70})
+      @enemy2 = new Charactor({name:"敵２", maxHp:70, side:"enemy"})
       console.log "#{@enemy2.name} create"
       @scenes = {}
       @scenes.battle = new BattleScene()

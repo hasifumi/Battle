@@ -3,23 +3,31 @@ class BattleScene extends Scene
     super()
     @game = enchant.Game.instance
 
-    uw1 = new UtilWindow(310, 80)
+    uw1 = new UtilWindow(310, 80)# {{{
     uw1.x = 5
     uw1.y = 10
-    @addChild uw1
+    @addChild uw1# }}}
 
-    lines = [" ", " ", " ", " "]
+    lines = [" ", " "]# {{{
     sd1 = new SelectDialog(lines, 0)
-    sd1.x = @game.width/2 - @width/2
-    sd1.y = @game.height/2 - @height/2
+    sd1.x = @game.width/2 - sd1.width/2
+    sd1.y = @game.height/2 - sd1.height/2
     @addChild sd1
-    sd1.setVisible(false)
+    sd1.setVisible(false)# }}}
 
     @bEngine = new BattleEngine(uw1, sd1)
-    @bEngine.addMember(@game.player, "party")
-    @bEngine.addMember(@game.enemy, "enemy")
-    @bEngine.addMember(@game.enemy2, "enemy")
-    uw1.setLines(["敵が現れた！"])
+    
+    @bEngine.addMember(@game.player)
+    @bEngine.addMember(@game.enemy)
+    @bEngine.addMember(@game.enemy2)
+    @bEngine.prepare()
+
+    sd1.addEventListener 'touchend', =>
+      console.log "@bEngine:"+@bEngine.index+", sd1.getIndex():"+sd1.getIndex()
+      @bEngine.changeState("selectTarget")
+      #if @bEngine.index isnt sd1.getIndex()
+      #  @bEngine.changeState("selectTarget")
+    
     @addEventListener 'enterframe', ->
       @bEngine.update()
     
@@ -48,17 +56,7 @@ class BattleScene extends Scene
     dmyBtn.y = 270
     @addChild dmyBtn# }}}
 
-#    lblAttack =  new Label("Attack")# {{{
-#    lblAttack.color = "orange"
-#    lblAttack.x = 50
-#    lblAttack.y = 50
-#    lblAttack.addEventListener 'touchend', =>
-#      console.log "lblAttack touched"
-#      @bEngine.addCommand("attack")
-#      @bEngine.nextTurn()
-#    @addChild lblAttack
-#
-#    lblChange = new Label("Change")
+#    lblChange = new Label("Change")# {{{
 #    lblChange.x = 50
 #    lblChange.y = 60
 #    lblChange.addEventListener 'touchend', =>
@@ -89,7 +87,7 @@ class BattleScene extends Scene
 #      sd1.setVisible(false)
 #    @addChild lblInvisible# }}}
 
-class commandButton extends Group
+class commandButton extends Group# {{{
   constructor:(w, h, command, battleEngine)->
     super()
     func = new UtilFunc()
@@ -110,12 +108,12 @@ class commandButton extends Group
     len = wk_ctx.measureText(command).width
     lbl.x = w/2 - len/2
     lbl.y = h/2 - 7
-    console.log "len:"+len+", x:"+lbl.x
+    #console.log "len:"+len+", x:"+lbl.x
     lbl.color = "orange"
     lbl.font = '14px fantasy'
     lbl.addEventListener "touchend", =>
       console.log command+" touched"
       battleEngine.addCommand(command)
-    @addChild lbl
+    @addChild lbl# }}}
       
 

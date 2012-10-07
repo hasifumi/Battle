@@ -23,17 +23,20 @@
       this.onload = function() {
         this.player = new Charactor({
           name: "プレイヤー１",
-          maxHp: 100
+          maxHp: 100,
+          side: "party"
         });
         console.log("" + this.player.name + " create");
         this.enemy = new Charactor({
           name: "敵１",
-          maxHp: 50
+          maxHp: 50,
+          side: "enemy"
         });
         console.log("" + this.enemy.name + " create");
         this.enemy2 = new Charactor({
           name: "敵２",
-          maxHp: 70
+          maxHp: 70,
+          side: "enemy"
         });
         console.log("" + this.enemy2.name + " create");
         this.scenes = {};
@@ -56,6 +59,7 @@
     function Charactor(param) {
       this.name = param.name;
       this.maxHp = param.maxHp;
+      this.side = param.side;
       this.hp = this.maxHp;
       this.isDead = false;
     }
@@ -85,24 +89,29 @@
     __extends(BattleScene, _super);
 
     function BattleScene() {
-      var atkBtn, defBtn, dmyBtn, itmBtn, lines, mgcBtn, runBtn, sd1, uw1;
+      var atkBtn, defBtn, dmyBtn, itmBtn, lines, mgcBtn, runBtn, sd1, uw1,
+        _this = this;
       BattleScene.__super__.constructor.call(this);
       this.game = enchant.Game.instance;
       uw1 = new UtilWindow(310, 80);
       uw1.x = 5;
       uw1.y = 10;
       this.addChild(uw1);
-      lines = [" ", " ", " ", " "];
+      lines = [" ", " "];
       sd1 = new SelectDialog(lines, 0);
-      sd1.x = this.game.width / 2 - this.width / 2;
-      sd1.y = this.game.height / 2 - this.height / 2;
+      sd1.x = this.game.width / 2 - sd1.width / 2;
+      sd1.y = this.game.height / 2 - sd1.height / 2;
       this.addChild(sd1);
       sd1.setVisible(false);
       this.bEngine = new BattleEngine(uw1, sd1);
-      this.bEngine.addMember(this.game.player, "party");
-      this.bEngine.addMember(this.game.enemy, "enemy");
-      this.bEngine.addMember(this.game.enemy2, "enemy");
-      uw1.setLines(["敵が現れた！"]);
+      this.bEngine.addMember(this.game.player);
+      this.bEngine.addMember(this.game.enemy);
+      this.bEngine.addMember(this.game.enemy2);
+      this.bEngine.prepare();
+      sd1.addEventListener('touchend', function() {
+        console.log("@bEngine:" + _this.bEngine.index + ", sd1.getIndex():" + sd1.getIndex());
+        return _this.bEngine.changeState("selectTarget");
+      });
       this.addEventListener('enterframe', function() {
         return this.bEngine.update();
       });
@@ -162,7 +171,6 @@
       len = wk_ctx.measureText(command).width;
       lbl.x = w / 2 - len / 2;
       lbl.y = h / 2 - 7;
-      console.log("len:" + len + ", x:" + lbl.x);
       lbl.color = "orange";
       lbl.font = '14px fantasy';
       lbl.addEventListener("touchend", function() {
@@ -191,21 +199,30 @@
 
       this.clearCommand = __bind(this.clearCommand, this);
 
+      this.selectTarget = __bind(this.selectTarget, this);
+
       this.addCommand = __bind(this.addCommand, this);
 
       this.nextTarget = __bind(this.nextTarget, this);
 
       this.nextTurn = __bind(this.nextTurn, this);
 
+      this.beforeTurn = __bind(this.beforeTurn, this);
+
+      this.prepare = __bind(this.prepare, this);
+
       this.changeState = __bind(this.changeState, this);
 
       this.addMember = __bind(this.addMember, this);
 
       this.update = __bind(this.update, this);
-      this.state = "waitCommand";
+      this.state = "";
       this.members = [];
       this.party = [];
       this.enemy = [];
+      this.targets = [];
+      this.index = 0;
+      this.command = "";
       this.commands = [];
       this.turn = 0;
       this.target = 1;
@@ -218,18 +235,20 @@
 
     BattleEngine.prototype.update = function() {
       switch (this.state) {
+        case "beforeTurn":
+          return this.beforeTurn();
         case "waitCommand":
           break;
+        case "selectTarget":
+          return this.selectTarget();
         case "doCommand":
           return this.doCommand();
-        default:
-          return console.log("else");
       }
     };
 
-    BattleEngine.prototype.addMember = function(member, side) {
+    BattleEngine.prototype.addMember = function(member) {
       this.members.push(member);
-      switch (side) {
+      switch (member.side) {
         case "party":
           return this.party.push(member);
         case "enemy":
@@ -241,14 +260,26 @@
       return this.state = state;
     };
 
+    BattleEngine.prototype.prepare = function() {
+      this.msgWin.setLines(["敵が現れた！<:br>"]);
+      return this.changeState("beforeTurn");
+    };
+
+    BattleEngine.prototype.beforeTurn = function() {
+      this.msgWin.setLines([this.members[this.turn].name + "のターン。"]);
+      this.msgWin.drawText();
+      return this.changeState("waitCommand");
+    };
+
     BattleEngine.prototype.nextTurn = function() {
       if (this.turn >= this.members.length - 1) {
         this.turn = 0;
-        this.nextTarget();
         return this.changeState("doCommand");
       } else {
         this.turn++;
-        return this.nextTarget();
+        this.msgWin.clearLines();
+        this.msgWin.drawText();
+        return this.changeState("beforeTurn");
       }
     };
 
@@ -261,12 +292,53 @@
     };
 
     BattleEngine.prototype.addCommand = function(command) {
+      var i, _i, _j, _len, _len1, _ref, _ref1;
+      this.command = command;
+      this.targets = [];
+      switch (this.command) {
+        case "attack":
+          if (this.members[this.turn].side === "party") {
+            _ref = this.enemy;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              i = _ref[_i];
+              this.targets.push(i.name);
+            }
+          } else {
+            _ref1 = this.party;
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              i = _ref1[_j];
+              this.targets.push(i.name);
+            }
+          }
+          this.selectDialog.lines = this.targets;
+          this.selectDialog.reSize();
+          this.selectDialog.index = this.index;
+          this.selectDialog.resetSize(this.selectDialog.width, this.selectDialog.height);
+          this.selectDialog.drawText();
+          return this.selectDialog.setVisible(true);
+      }
+    };
+
+    BattleEngine.prototype.selectTarget = function() {
+      var i, idx, index, _i, _len, _ref;
+      index = this.selectDialog.getIndex();
+      _ref = this.members;
+      for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
+        i = _ref[idx];
+        if (i.name === this.targets[index]) {
+          this.target = idx;
+          break;
+        }
+      }
+      this.selectDialog.setIndex(this.index);
+      this.selectDialog.setVisible(false);
       this.commands.push({
-        command: command,
+        command: this.command,
         turn: this.turn,
         target: this.target
       });
-      return console.log("addCommand command:" + command + ", turn:" + this.turn + ", target:" + this.target);
+      console.log("addCommand command:" + this.command + ", turn:" + this.turn + ", target:" + this.target);
+      return this.nextTurn();
     };
 
     BattleEngine.prototype.clearCommand = function() {
@@ -300,15 +372,17 @@
       }
       this.msgWin.drawText();
       this.clearCommand();
-      this.changeState("waitCommand");
       if (this.game.player.hp <= 0) {
         this.msgWin.addText("Game Over!");
+        console.log("Game Over!");
         this.game.stop();
       }
       if (this.game.enemy.hp <= 0) {
         this.msgWin.addText("Game Clear!!");
-        return this.game.stop();
+        console.log("Game Clear!");
+        this.game.stop();
       }
+      return this.changeState("beforeTurn");
     };
 
     BattleEngine.prototype.addLine = function(line) {

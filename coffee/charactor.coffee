@@ -2,6 +2,7 @@ class Charactor
   constructor:(param)->
     @name = param.name
     @maxHp = param.maxHp
+    @side = param.side
     @hp = @maxHp
     @isDead = false
   damage:(value)->
