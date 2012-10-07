@@ -91,6 +91,7 @@ class UtilFunc# {{{
       when "stroke"
         ctx.stroke()# }}}
 # }}}
+        
 class UtilWindow extends Sprite
   DEFAULT:{# {{{
     BACKGROUND_COLOR:'black'
@@ -102,7 +103,7 @@ class UtilWindow extends Sprite
     PADDING:3
     RADIUS:8
     LINE_HEIGHT:16
-    OPACITY:0.6
+    OPACITY:1.0
     PAGE_MARKER_HEIGHT:10
     PAGE_MARKER_WIDTH:20
   }# }}}
@@ -239,6 +240,7 @@ class UtilWindow extends Sprite
 
 class SelectDialog extends UtilWindow
   DEFAULT1:{# {{{
+    OPACITY:1.0
     SELECTED_COLOR:'yellow'
     SEL_MARKER_WIDTH:10
     SEL_MARKER_HEIGHT:16
@@ -265,11 +267,11 @@ class SelectDialog extends UtilWindow
     @drawText()
     @addEventListener 'touchend', (e)=>
       @setIndex(@detectIndex(e))# }}}
-  reSize:()=>
+  reSize:()=># {{{
     @content_width = @max(@lines) + @DEFAULT.PADDING
     @content_height = @lines.length * @DEFAULT.LINE_HEIGHT
     @width = @content_width + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2 + @DEFAULT1.SEL_MARKER_WIDTH
-    @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2
+    @height = @content_height + @DEFAULT.BORDER*2 + @DEFAULT.PADDING*2# }}}
   max:(lines)=># {{{
     max = 0
     for i in lines
@@ -321,8 +323,9 @@ class SelectDialog extends UtilWindow
     @ctx.fill()# }}}
   getIndex:=># {{{
     return @index# }}}
-  setIndex:(idx)=>
+  setIndex:(idx)=># {{{
     if @index isnt idx
       @index = idx
       @drawText()
-      @state = @STATE.MESSAGE_EXIT
+      @state = @STATE.MESSAGE_EXIT# }}}
+      

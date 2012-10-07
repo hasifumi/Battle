@@ -1,7 +1,9 @@
 class BattleEngine
-  constructor:(msgWin)->
+  constructor:(msgWin, selectDialog)->
     @state = "waitCommand"
     @members = []
+    @party = []
+    @enemy = []
     @commands = []
     @turn = 0
     @target = 1
@@ -9,18 +11,22 @@ class BattleEngine
     @lines = []
     @clearLines()
     @msgWin = msgWin
+    @selectDialog = selectDialog
   update:=>
     switch @state
       when "waitCommand"
-        #console.log "wait all command"
         return
       when "doCommand"
-        #console.log "do all command"
         @doCommand()
       else
         console.log "else"
-  addMember:(member)=>
+  addMember:(member, side)=>
     @members.push member
+    switch side
+      when "party"
+        @party.push member
+      when "enemy"
+        @enemy.push member
   changeState:(state)=>
     @state = state
   nextTurn:=>

@@ -31,6 +31,11 @@
           maxHp: 50
         });
         console.log("" + this.enemy.name + " create");
+        this.enemy2 = new Charactor({
+          name: "敵２",
+          maxHp: 70
+        });
+        console.log("" + this.enemy2.name + " create");
         this.scenes = {};
         this.scenes.battle = new BattleScene();
         this.replaceScene(this.scenes.battle);
@@ -83,19 +88,21 @@
       var atkBtn, defBtn, dmyBtn, itmBtn, lines, mgcBtn, runBtn, sd1, uw1;
       BattleScene.__super__.constructor.call(this);
       this.game = enchant.Game.instance;
-      uw1 = new UtilWindow(230, 80);
-      uw1.x = 50;
-      uw1.y = 100;
+      uw1 = new UtilWindow(310, 80);
+      uw1.x = 5;
+      uw1.y = 10;
       this.addChild(uw1);
-      lines = ["ああああ", "いい", "ううう", "ええええええええ"];
+      lines = [" ", " ", " ", " "];
       sd1 = new SelectDialog(lines, 0);
       sd1.x = this.game.width / 2 - this.width / 2;
       sd1.y = this.game.height / 2 - this.height / 2;
       this.addChild(sd1);
       sd1.setVisible(false);
-      this.bEngine = new BattleEngine(uw1);
-      this.bEngine.addMember(this.game.player);
-      this.bEngine.addMember(this.game.enemy);
+      this.bEngine = new BattleEngine(uw1, sd1);
+      this.bEngine.addMember(this.game.player, "party");
+      this.bEngine.addMember(this.game.enemy, "enemy");
+      this.bEngine.addMember(this.game.enemy2, "enemy");
+      uw1.setLines(["敵が現れた！"]);
       this.addEventListener('enterframe', function() {
         return this.bEngine.update();
       });
@@ -134,7 +141,7 @@
     __extends(commandButton, _super);
 
     function commandButton(w, h, command, battleEngine) {
-      var ctx, func, lbl, sp, sur,
+      var ctx, func, lbl, len, sp, sur, wk_ctx, wk_sur,
         _this = this;
       commandButton.__super__.constructor.call(this);
       func = new UtilFunc();
@@ -149,10 +156,17 @@
       sp.image = sur;
       this.addChild(sp);
       lbl = new Label(command);
-      lbl.x = w / 2 - 10;
+      wk_sur = new Surface(w, h);
+      wk_ctx = wk_sur.context;
+      wk_ctx.font = '14px fantasy';
+      len = wk_ctx.measureText(command).width;
+      lbl.x = w / 2 - len / 2;
       lbl.y = h / 2 - 7;
+      console.log("len:" + len + ", x:" + lbl.x);
       lbl.color = "orange";
+      lbl.font = '14px fantasy';
       lbl.addEventListener("touchend", function() {
+        console.log(command + " touched");
         return battleEngine.addCommand(command);
       });
       this.addChild(lbl);
@@ -164,7 +178,7 @@
 
   BattleEngine = (function() {
 
-    function BattleEngine(msgWin) {
+    function BattleEngine(msgWin, selectDialog) {
       this.clearLines = __bind(this.clearLines, this);
 
       this.getLines = __bind(this.getLines, this);
@@ -190,6 +204,8 @@
       this.update = __bind(this.update, this);
       this.state = "waitCommand";
       this.members = [];
+      this.party = [];
+      this.enemy = [];
       this.commands = [];
       this.turn = 0;
       this.target = 1;
@@ -197,6 +213,7 @@
       this.lines = [];
       this.clearLines();
       this.msgWin = msgWin;
+      this.selectDialog = selectDialog;
     }
 
     BattleEngine.prototype.update = function() {
@@ -210,8 +227,14 @@
       }
     };
 
-    BattleEngine.prototype.addMember = function(member) {
-      return this.members.push(member);
+    BattleEngine.prototype.addMember = function(member, side) {
+      this.members.push(member);
+      switch (side) {
+        case "party":
+          return this.party.push(member);
+        case "enemy":
+          return this.enemy.push(member);
+      }
     };
 
     BattleEngine.prototype.changeState = function(state) {
@@ -395,7 +418,7 @@
       PADDING: 3,
       RADIUS: 8,
       LINE_HEIGHT: 16,
-      OPACITY: 0.6,
+      OPACITY: 1.0,
       PAGE_MARKER_HEIGHT: 10,
       PAGE_MARKER_WIDTH: 20
     };
@@ -592,6 +615,7 @@
     __extends(SelectDialog, _super);
 
     SelectDialog.prototype.DEFAULT1 = {
+      OPACITY: 1.0,
       SELECTED_COLOR: 'yellow',
       SEL_MARKER_WIDTH: 10,
       SEL_MARKER_HEIGHT: 16

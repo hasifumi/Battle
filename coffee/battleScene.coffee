@@ -3,48 +3,50 @@ class BattleScene extends Scene
     super()
     @game = enchant.Game.instance
 
-    uw1 = new UtilWindow(230, 80)
-    uw1.x = 50
-    uw1.y = 100
+    uw1 = new UtilWindow(310, 80)
+    uw1.x = 5
+    uw1.y = 10
     @addChild uw1
 
-    lines = ["ああああ", "いい", "ううう", "ええええええええ"]
+    lines = [" ", " ", " ", " "]
     sd1 = new SelectDialog(lines, 0)
     sd1.x = @game.width/2 - @width/2
     sd1.y = @game.height/2 - @height/2
     @addChild sd1
     sd1.setVisible(false)
 
-    @bEngine = new BattleEngine(uw1)
-    @bEngine.addMember(@game.player)
-    @bEngine.addMember(@game.enemy)
+    @bEngine = new BattleEngine(uw1, sd1)
+    @bEngine.addMember(@game.player, "party")
+    @bEngine.addMember(@game.enemy, "enemy")
+    @bEngine.addMember(@game.enemy2, "enemy")
+    uw1.setLines(["敵が現れた！"])
     @addEventListener 'enterframe', ->
       @bEngine.update()
     
-    atkBtn = new commandButton(60, 50, "attack", @bEngine)
+    atkBtn = new commandButton(60, 50, "attack", @bEngine)# {{{
     atkBtn.x = 0
     atkBtn.y = 220
-    @addChild atkBtn
-    mgcBtn = new commandButton(60, 50, "magic", @bEngine)
+    @addChild atkBtn# }}}
+    mgcBtn = new commandButton(60, 50, "magic", @bEngine)# {{{
     mgcBtn.x = 60
     mgcBtn.y = 220
-    @addChild mgcBtn
-    itmBtn = new commandButton(60, 50, "item", @bEngine)
+    @addChild mgcBtn# }}}
+    itmBtn = new commandButton(60, 50, "item", @bEngine)# {{{
     itmBtn.x = 120
     itmBtn.y = 220
-    @addChild itmBtn
-    defBtn = new commandButton(60, 50, "defense", @bEngine)
+    @addChild itmBtn# }}}
+    defBtn = new commandButton(60, 50, "defense", @bEngine)# {{{
     defBtn.x = 0
     defBtn.y = 270
-    @addChild defBtn
-    runBtn = new commandButton(60, 50, "run", @bEngine)
+    @addChild defBtn# }}}
+    runBtn = new commandButton(60, 50, "run", @bEngine)# {{{
     runBtn.x = 60
     runBtn.y = 270
-    @addChild runBtn
-    dmyBtn = new commandButton(60, 50, "dummy", @bEngine)
+    @addChild runBtn# }}}
+    dmyBtn = new commandButton(60, 50, "dummy", @bEngine)# {{{
     dmyBtn.x = 120
     dmyBtn.y = 270
-    @addChild dmyBtn
+    @addChild dmyBtn# }}}
 
 #    lblAttack =  new Label("Attack")# {{{
 #    lblAttack.color = "orange"
@@ -102,11 +104,17 @@ class commandButton extends Group
     sp.image = sur
     @addChild sp
     lbl = new Label(command)
-    #console.log "lbl.width:"+lbl.width+", height:"+lbl.height
-    lbl.x = w/2 - 10
+    wk_sur = new Surface(w, h)
+    wk_ctx = wk_sur.context
+    wk_ctx.font = '14px fantasy'
+    len = wk_ctx.measureText(command).width
+    lbl.x = w/2 - len/2
     lbl.y = h/2 - 7
+    console.log "len:"+len+", x:"+lbl.x
     lbl.color = "orange"
+    lbl.font = '14px fantasy'
     lbl.addEventListener "touchend", =>
+      console.log command+" touched"
       battleEngine.addCommand(command)
     @addChild lbl
       
