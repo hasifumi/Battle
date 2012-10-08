@@ -142,9 +142,16 @@ class BattleEngine
   afterAnime:=># {{{
     if @currentCommands >= @commands.length - 1
       @msgWin.clearLines()
-      @beforeTurn()
+      #@beforeTurn()
       @currentCommands = 0
       @clearCommand()
+      if @game.player.hp <= 0
+        @changeState("gameOver")
+      else
+        if @game.enemy.hp <= 0
+          @changeState("gameClear")
+        else
+          @changeState("beforeTurn")
     else
       @currentCommands++
       @changeState("doCommand")# }}}

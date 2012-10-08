@@ -399,9 +399,17 @@
     BattleEngine.prototype.afterAnime = function() {
       if (this.currentCommands >= this.commands.length - 1) {
         this.msgWin.clearLines();
-        this.beforeTurn();
         this.currentCommands = 0;
-        return this.clearCommand();
+        this.clearCommand();
+        if (this.game.player.hp <= 0) {
+          return this.changeState("gameOver");
+        } else {
+          if (this.game.enemy.hp <= 0) {
+            return this.changeState("gameClear");
+          } else {
+            return this.changeState("beforeTurn");
+          }
+        }
       } else {
         this.currentCommands++;
         return this.changeState("doCommand");
