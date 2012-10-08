@@ -128,8 +128,8 @@ class UtilWindow extends Sprite
     @skip_count = 0
     @br_flag = 0
     @clearText()
-    @addEventListener 'touchend', =>
-      @onClick()# }}}
+    #@addEventListener 'touchend', =>
+    #  @onClick()# }}}
   resetSize:(w, h)=># {{{
     @width = w
     @height = h

@@ -8,11 +8,12 @@ class BattleEngine
     @index = 0
     @command = ""
     @commands = []
+    @currentCommands = 0
     @turn = 0
     @target = 1
     @game = enchant.Game.instance
-    @lines = []
-    @clearLines()
+    #@lines = []
+    #@clearLines()
     @msgWin = msgWin
     @selectDialog = selectDialog# }}}
   update:=># {{{
@@ -25,6 +26,14 @@ class BattleEngine
         @selectTarget()
       when "doCommand"
         @doCommand()
+      when "waitEffectAnime"
+        return
+      when "afterAnime"
+        @afterAnime()
+      when "gameClear"
+        @gameClear()
+      when "gameOver"
+        @gameOver()
       else
         #console.log "else"# }}}
   addMember:(member)=># {{{
@@ -47,6 +56,7 @@ class BattleEngine
     if @turn >= @members.length - 1
       @turn = 0
       #@nextTarget()
+      @currentCommands = 0
       @changeState("doCommand")
     else
       @turn++
@@ -98,32 +108,63 @@ class BattleEngine
     @msgWin.addText "#{turn_name} が #{target_name} を攻撃！"
     @msgWin.addText "#{target_name} は #{damage} のダメージ！"
     @msgWin.addText "#{target_name} のＨＰは #{@members[target].hp}／#{@members[target].maxHp}"
+    @msgWin.drawText()
     #console.log "#{turn_name} attack #{target_name}!"
     #console.log "#{target_name} damaged #{damage}!"
     #console.log "#{target_name}'s hp:#{@members[target].hp}, maxHp:#{@members[target].maxHp}!"# }}}
   doCommand:=># {{{
     @msgWin.clearLines()
-    for i in @commands
-      switch i.command
-        when "attack"
-          @commandAttack(i.turn, i.target)
-        else
-          return
+    console.log "@commands[#{@currentCommands}]:"+@commands[@currentCommands]
+    switch @commands[@currentCommands].command
+      when "attack"
+        turn = @commands[@currentCommands].turn
+        target = @commands[@currentCommands].target
+        @changeState("waitEffectAnime")
+        @commandAttack(turn, target)
+    #for i in @commands# {{{
+    #  switch i.command
+    #    when "attack"
+    #      @commandAttack(i.turn, i.target)
+    #    else
+    #      return
+    #@msgWin.drawText()
+    #@clearCommand()
+    #if @game.player.hp <= 0
+    #  @msgWin.addText "Game Over!"
+    #  console.log "Game Over!"
+    #  @game.stop()
+    #if @game.enemy.hp <= 0
+    #  @msgWin.addText "Game Clear!!"
+    #  console.log "Game Clear!"
+    #  @game.stop()
+    #@changeState("beforeTurn")# }}}
+    # }}}
+  afterAnime:=># {{{
+    if @currentCommands >= @commands.length - 1
+      @msgWin.clearLines()
+      @beforeTurn()
+      @currentCommands = 0
+      @clearCommand()
+    else
+      @currentCommands++
+      @changeState("doCommand")# }}}
+  gameClear:=># {{{
+    console.log "Game Clear!"
+    @msgWin.clearLines()
+    @msgWin.addText("Game Clear!")
     @msgWin.drawText()
-    @clearCommand()
-    if @game.player.hp <= 0
-      @msgWin.addText "Game Over!"
-      console.log "Game Over!"
-      @game.stop()
-    if @game.enemy.hp <= 0
-      @msgWin.addText "Game Clear!!"
-      console.log "Game Clear!"
-      @game.stop()
-    @changeState("beforeTurn")# }}}
-  addLine:(line)=># {{{
-    @lines.push line# }}}
-  getLines:()=># {{{
-    return @lines# }}}
-  clearLines:()=># {{{
-    @lines = []# }}}
+    @game.stop()# }}}
+  gameOver:=># {{{
+    console.log "Game Over!!"
+    @msgWin.clearLines()
+    @msgWin.addText("Game Over!!")
+    @msgWin.drawText()
+    @game.stop()# }}}
+
+  #addLine:(line)=># {{{
+  #  @lines.push line# }}}
+  #getLines:()=># {{{
+  #  return @lines# }}}
+  #clearLines:()=># {{{
+  #  @lines = []# }}}
     

@@ -89,7 +89,7 @@
     __extends(BattleScene, _super);
 
     function BattleScene() {
-      var atkBtn, defBtn, dmyBtn, itmBtn, lines, mgcBtn, runBtn, sd1, uw1,
+      var atkBtn, defBtn, dmyBtn, itmBtn, lines, mgcBtn, runBtn, sd1, tempLbl, uw1,
         _this = this;
       BattleScene.__super__.constructor.call(this);
       this.game = enchant.Game.instance;
@@ -108,10 +108,28 @@
       this.bEngine.addMember(this.game.enemy);
       this.bEngine.addMember(this.game.enemy2);
       this.bEngine.prepare();
+      uw1.addEventListener('touchend', function() {
+        console.log("uw1 touched!");
+        return this.onClick();
+      });
       sd1.addEventListener('touchend', function() {
         console.log("@bEngine:" + _this.bEngine.index + ", sd1.getIndex():" + sd1.getIndex());
         return _this.bEngine.changeState("selectTarget");
       });
+      tempLbl = new Label("Click here!");
+      tempLbl.x = 20;
+      tempLbl.y = 150;
+      tempLbl.visible = false;
+      tempLbl.addEventListener('enterframe', function() {
+        if (_this.bEngine.state === "waitEffectAnime") {
+          return tempLbl.visible = true;
+        }
+      });
+      tempLbl.addEventListener('touchend', function() {
+        _this.bEngine.changeState("afterAnime");
+        return tempLbl.visible = false;
+      });
+      this.addChild(tempLbl);
       this.addEventListener('enterframe', function() {
         return this.bEngine.update();
       });
@@ -187,11 +205,11 @@
   BattleEngine = (function() {
 
     function BattleEngine(msgWin, selectDialog) {
-      this.clearLines = __bind(this.clearLines, this);
+      this.gameOver = __bind(this.gameOver, this);
 
-      this.getLines = __bind(this.getLines, this);
+      this.gameClear = __bind(this.gameClear, this);
 
-      this.addLine = __bind(this.addLine, this);
+      this.afterAnime = __bind(this.afterAnime, this);
 
       this.doCommand = __bind(this.doCommand, this);
 
@@ -224,11 +242,10 @@
       this.index = 0;
       this.command = "";
       this.commands = [];
+      this.currentCommands = 0;
       this.turn = 0;
       this.target = 1;
       this.game = enchant.Game.instance;
-      this.lines = [];
-      this.clearLines();
       this.msgWin = msgWin;
       this.selectDialog = selectDialog;
     }
@@ -243,6 +260,14 @@
           return this.selectTarget();
         case "doCommand":
           return this.doCommand();
+        case "waitEffectAnime":
+          break;
+        case "afterAnime":
+          return this.afterAnime();
+        case "gameClear":
+          return this.gameClear();
+        case "gameOver":
+          return this.gameOver();
       }
     };
 
@@ -274,6 +299,7 @@
     BattleEngine.prototype.nextTurn = function() {
       if (this.turn >= this.members.length - 1) {
         this.turn = 0;
+        this.currentCommands = 0;
         return this.changeState("doCommand");
       } else {
         this.turn++;
@@ -353,48 +379,49 @@
       this.members[target].damage(damage);
       this.msgWin.addText("" + turn_name + " が " + target_name + " を攻撃！");
       this.msgWin.addText("" + target_name + " は " + damage + " のダメージ！");
-      return this.msgWin.addText("" + target_name + " のＨＰは " + this.members[target].hp + "／" + this.members[target].maxHp);
+      this.msgWin.addText("" + target_name + " のＨＰは " + this.members[target].hp + "／" + this.members[target].maxHp);
+      return this.msgWin.drawText();
     };
 
     BattleEngine.prototype.doCommand = function() {
-      var i, _i, _len, _ref;
+      var target, turn;
       this.msgWin.clearLines();
-      _ref = this.commands;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        i = _ref[_i];
-        switch (i.command) {
-          case "attack":
-            this.commandAttack(i.turn, i.target);
-            break;
-          default:
-            return;
-        }
+      console.log(("@commands[" + this.currentCommands + "]:") + this.commands[this.currentCommands]);
+      switch (this.commands[this.currentCommands].command) {
+        case "attack":
+          turn = this.commands[this.currentCommands].turn;
+          target = this.commands[this.currentCommands].target;
+          this.changeState("waitEffectAnime");
+          return this.commandAttack(turn, target);
       }
+    };
+
+    BattleEngine.prototype.afterAnime = function() {
+      if (this.currentCommands >= this.commands.length - 1) {
+        this.msgWin.clearLines();
+        this.beforeTurn();
+        this.currentCommands = 0;
+        return this.clearCommand();
+      } else {
+        this.currentCommands++;
+        return this.changeState("doCommand");
+      }
+    };
+
+    BattleEngine.prototype.gameClear = function() {
+      console.log("Game Clear!");
+      this.msgWin.clearLines();
+      this.msgWin.addText("Game Clear!");
       this.msgWin.drawText();
-      this.clearCommand();
-      if (this.game.player.hp <= 0) {
-        this.msgWin.addText("Game Over!");
-        console.log("Game Over!");
-        this.game.stop();
-      }
-      if (this.game.enemy.hp <= 0) {
-        this.msgWin.addText("Game Clear!!");
-        console.log("Game Clear!");
-        this.game.stop();
-      }
-      return this.changeState("beforeTurn");
+      return this.game.stop();
     };
 
-    BattleEngine.prototype.addLine = function(line) {
-      return this.lines.push(line);
-    };
-
-    BattleEngine.prototype.getLines = function() {
-      return this.lines;
-    };
-
-    BattleEngine.prototype.clearLines = function() {
-      return this.lines = [];
+    BattleEngine.prototype.gameOver = function() {
+      console.log("Game Over!!");
+      this.msgWin.clearLines();
+      this.msgWin.addText("Game Over!!");
+      this.msgWin.drawText();
+      return this.game.stop();
     };
 
     return BattleEngine;
@@ -516,8 +543,6 @@
       this.setLines = __bind(this.setLines, this);
 
       this.resetSize = __bind(this.resetSize, this);
-
-      var _this = this;
       UtilWindow.__super__.constructor.call(this, w, h);
       this.resetSize(w, h);
       this.state = this.STATE.NONE;
@@ -528,9 +553,6 @@
       this.skip_count = 0;
       this.br_flag = 0;
       this.clearText();
-      this.addEventListener('touchend', function() {
-        return _this.onClick();
-      });
     }
 
     UtilWindow.prototype.resetSize = function(w, h) {

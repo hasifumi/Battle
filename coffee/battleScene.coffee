@@ -22,11 +22,30 @@ class BattleScene extends Scene
     @bEngine.addMember(@game.enemy2)
     @bEngine.prepare()
 
+    uw1.addEventListener 'touchend',->
+      console.log "uw1 touched!"
+      @onClick()
+      #switch @bEngine.state
+      #  when "beforeTurn", "doCommand"
+      #    @onClick()
+        
     sd1.addEventListener 'touchend', =>
       console.log "@bEngine:"+@bEngine.index+", sd1.getIndex():"+sd1.getIndex()
       @bEngine.changeState("selectTarget")
       #if @bEngine.index isnt sd1.getIndex()
       #  @bEngine.changeState("selectTarget")
+
+    tempLbl = new Label("Click here!")
+    tempLbl.x = 20
+    tempLbl.y = 150
+    tempLbl.visible = false
+    tempLbl.addEventListener 'enterframe', =>
+      if @bEngine.state is "waitEffectAnime"
+        tempLbl.visible = true
+    tempLbl.addEventListener 'touchend', =>
+      @bEngine.changeState("afterAnime")
+      tempLbl.visible = false
+    @addChild tempLbl
     
     @addEventListener 'enterframe', ->
       @bEngine.update()
